@@ -1,0 +1,567 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Funeral Quest 1.3.0 - Manual</title><style>
+body{margin:0;background:#15110d;color:#efe3cf;font:16px/1.6 Georgia,'Times New Roman',serif}
+main{max-width:920px;margin:0 auto;padding:28px 24px 60px}
+header{background:#0d0a07;border-bottom:2px solid #4a3b2a;padding:14px 24px}
+header b{color:#e8b44a;font-size:22px}header span{color:#b4a184;margin-left:10px;font:13px system-ui,sans-serif;letter-spacing:2px;text-transform:uppercase}
+header nav{float:right;font:14px system-ui,sans-serif;margin-top:6px}header nav a{margin-left:16px}
+h1,h2,h3{color:#e8b44a;line-height:1.25}h1{font-size:30px}h2{font-size:24px;border-bottom:1px solid #4a3b2a;padding-bottom:4px;margin-top:40px}h3{font-size:19px;margin-top:28px}
+a{color:#f0c66b}code{background:#0f0c09;border:1px solid #33281c;border-radius:3px;padding:1px 5px;font:13.5px ui-monospace,Consolas,monospace;color:#f3dfb8}
+pre{background:#0b0907;border:1px solid #4a3b2a;border-radius:6px;padding:12px 14px;overflow:auto}pre code{border:0;padding:0;background:none}
+table{border-collapse:collapse;margin:12px 0;width:100%;font:14px/1.45 system-ui,sans-serif}th,td{border:1px solid #4a3b2a;padding:6px 9px;text-align:left;vertical-align:top}th{background:#2c2319;color:#e8b44a}
+tr:nth-child(even) td{background:#1c1610}li{margin:3px 0}hr{border:0;border-top:1px solid #4a3b2a}
+.toc{background:#221b14;border:1px solid #4a3b2a;border-radius:8px;padding:10px 18px;font:14px system-ui,sans-serif}.toc ul{margin:4px 0;padding-left:18px}
+@media print{body{background:#fff;color:#000}header{display:none}h1,h2,h3,a,th{color:#000}pre,code{background:#f4f4f4;color:#000}td{background:#fff!important}}
+</style></head><body>
+<header><b>Funeral Quest</b><span>1.3.0 · Manual</span><nav><a href="Funeral-Quest-Manual.html">Manual</a> <a href="Quick-Install.html">Quick install</a> <a href="Changes.html">Changes</a></nav></header><main>
+<div class="toc"><b>Contents</b><div class="toc">
+<ul>
+<li><a href="#the-jpeg-xl-check">The JPEG XL check</a></li>
+<li><a href="#sound">Sound</a></li>
+<li><a href="#install">Install</a><ul>
+<li><a href="#synchronet-windows-linux-raspberry-pi-bsd-macos">Synchronet (Windows, Linux, Raspberry Pi, BSD, macOS)</a></li>
+<li><a href="#mystic-bbs-windows-3264-bit-linux">Mystic BBS (Windows 32/64-bit, Linux)</a></li>
+<li><a href="#other-32-bit-and-linux-bbses-that-write-door32sys">Other 32-bit and Linux BBSes that write DOOR32.SYS</a></li>
+<li><a href="#rlogin-bbs-gateways-and-syncterm">RLogin (BBS gateways and SyncTERM)</a></li>
+<li><a href="#test-it-without-a-bbs">Test it without a BBS</a></li>
+</ul>
+</li>
+<li><a href="#web-server">Web server</a></li>
+<li><a href="#the-sysop-editor-fqedit">The sysop editor: fqedit</a></li>
+<li><a href="#web-admin-pages">Web admin pages</a></li>
+<li><a href="#security">Security</a><ul>
+<li><a href="#https-certificate">HTTPS certificate</a></li>
+<li><a href="#block-lists-and-bans">Block lists and bans</a></li>
+</ul>
+</li>
+<li><a href="#linking-towns-together-funeral-quest-network">Linking towns together (Funeral Quest network)</a><ul>
+<li><a href="#linking-without-the-web-server">Linking without the web server</a></li>
+<li><a href="#how-linked-servers-talk">How linked servers talk</a></li>
+<li><a href="#versions-and-game-settings">Versions and game settings</a></li>
+<li><a href="#settings-votes">Settings votes</a></li>
+<li><a href="#raids-between-towns">Raids between towns</a></li>
+</ul>
+</li>
+<li><a href="#sysop-commands">Sysop commands</a></li>
+<li><a href="#building-from-source">Building from source</a></li>
+<li><a href="#whats-ported">What's ported</a></li>
+<li><a href="#credits">Credits</a></li>
+</ul>
+</div>
+</div><h1 id="funeral-quest-bbs-door-web-server-go">Funeral Quest — BBS door + web server (Go)</h1>
+<p>Version 1.3.0. <strong>New here? Start with <a href="Quick-Install.html">QUICK-INSTALL.md</a>.</strong> See <a href="Changes.html">CHANGES.md</a> for what's new; <code>fq version</code> shows the version you're running. The same guides are in <code>docs/</code> as web pages you can open in any browser.</p>
+<p><strong>Contents:</strong> The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits</p>
+<p>Seth A. Robinson's 2001 <em>Funeral Quest</em>, ported to <strong>Go</strong> as one program that runs as:</p>
+<ul>
+<li><strong>a BBS door</strong> using <strong>DOOR32.SYS</strong>, for BBSes on Windows (32-bit, 64-bit, ARM), Linux (x86, ARM, Raspberry Pi), macOS and the BSDs. <strong>SyncTERM</strong> callers get Akiko Robinson's original artwork as <strong>JPEG XL</strong> pictures inside the ANSI screen.</li>
+<li><strong>a web server</strong> with a browser version that looks like the original Flash client, also using JPEG XL.</li>
+</ul>
+<p>Both modes share the same game data, so BBS callers and web players live in the same town. They share the rankings, the Pale Horse Cafe chat, letters, Yang's deliveries and parlor raids.</p>
+<p>Towns on different servers can <strong>link together</strong>: type in the other server's address and the two towns share Cafe chat, network rankings and letters, and players can <strong>break into, fight and burn out</strong> parlors in the other town.</p>
+<p>No runtimes, no installers, no npm, no database server. It's a single executable plus a folder of data files.</p>
+<p>Every system has two programs: <strong>fq</strong> (the game: door, web server, telnet server and sysop commands) and <strong>fqedit</strong> (the full-screen sysop editor).</p>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>Game</th>
+<th>Editor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows 64-bit (most PCs)</td>
+<td><code>fq.exe</code></td>
+<td><code>fqedit.exe</code></td>
+</tr>
+<tr>
+<td>Windows 32-bit (and 32-bit BBS software on 64-bit Windows)</td>
+<td><code>fq32.exe</code></td>
+<td><code>fqedit32.exe</code></td>
+</tr>
+<tr>
+<td>Windows on ARM</td>
+<td><code>fq-arm64.exe</code></td>
+<td><code>fqedit-arm64.exe</code></td>
+</tr>
+<tr>
+<td>Linux x86-64</td>
+<td><code>fq-linux</code></td>
+<td><code>fqedit-linux</code></td>
+</tr>
+<tr>
+<td>Linux 32-bit x86</td>
+<td><code>fq-linux32</code></td>
+<td><code>fqedit-linux32</code></td>
+</tr>
+<tr>
+<td>Linux ARM 64-bit (Raspberry Pi 4/5 with a 64-bit OS, ARM servers)</td>
+<td><code>fq-linux-arm64</code></td>
+<td><code>fqedit-linux-arm64</code></td>
+</tr>
+<tr>
+<td>Linux ARM 32-bit (Raspberry Pi with a 32-bit OS)</td>
+<td><code>fq-linux-arm</code></td>
+<td><code>fqedit-linux-arm</code></td>
+</tr>
+<tr>
+<td>macOS Apple Silicon (M1 and later)</td>
+<td><code>fq-macos-arm</code></td>
+<td><code>fqedit-macos-arm</code></td>
+</tr>
+<tr>
+<td>macOS Intel</td>
+<td><code>fq-macos-intel</code></td>
+<td><code>fqedit-macos-intel</code></td>
+</tr>
+<tr>
+<td>FreeBSD x86-64 / ARM64</td>
+<td><code>fq-freebsd</code> / <code>fq-freebsd-arm64</code></td>
+<td><code>fqedit-freebsd</code> / <code>fqedit-freebsd-arm64</code></td>
+</tr>
+<tr>
+<td>OpenBSD x86-64</td>
+<td><code>fq-openbsd</code></td>
+<td><code>fqedit-openbsd</code></td>
+</tr>
+<tr>
+<td>NetBSD x86-64</td>
+<td><code>fq-netbsd</code></td>
+<td><code>fqedit-netbsd</code></td>
+</tr>
+</tbody>
+</table>
+<p>The downloads are split by system (Windows, Linux, macOS, BSD). Each one is complete: the programs for that system plus all the art, sounds, texts and source code. The examples below use <code>fq.exe</code>; on other systems use the matching name, e.g. <code>./fq-linux</code>. On Unix-like systems you may need <code>chmod +x fq-* fqedit-*</code> first. On macOS, the programs aren't signed by Apple, so the first time run <code>xattr -d com.apple.quarantine fq-macos-* fqedit-macos-*</code> (or right-click → Open).</p>
+<pre><code>assets/       pictures: assets/door (JPEG XL + PBM masks + PNG twins), assets/web (JPEG XL)
+              sound: assets/sound (the original game's sounds and music as Ogg Vorbis)
+gamedata/     the original game text files (risks, sales pitches, events, news...) - edit freely
+web/public/   the browser page
+data/         created on first run: world.json (the game), news/, logs, block lists, net/ (links), tls/
+docs/         this manual, the quick install guide and the change list as web pages
+extras/       RLogin setups for Synchronet, Mystic and SyncTERM
+</code></pre>
+<h2 id="the-jpeg-xl-check">The JPEG XL check</h2>
+<p>Every time a caller enters the door, it asks their terminal what it can do before drawing anything:</p>
+<ol>
+<li><code>CSI 6n</code> gives the screen size, and <code>CSI c</code> tells whether the terminal is SyncTERM (CTerm).</li>
+<li><strong><code>APC SyncTERM:Q;JXL</code></strong> asks whether the terminal can decode JPEG XL. SyncTERM answers <code>CSI =1;1-n</code> if it can and <code>CSI =1;0-n</code> if not.</li>
+<li>If JPEG XL is supported, the door lists SyncTERM's picture cache (<code>APC SyncTERM:C;L</code>). It uploads each picture only once (<code>APC SyncTERM:C;S</code>), and only re-sends one if it changed. It then draws with <code>APC SyncTERM:C;DrawJXL</code>, layering customers over backgrounds with PBM masks the way the Flash client did.</li>
+<li>If there's <strong>no</strong> JPEG XL, the door checks for Sixel (CTerm feature 4, or attribute 4 in the DA1 reply). If the terminal has Sixel, the same art is sent as Sixel. It looks the same but costs about 100 KB per picture instead of roughly 10 KB once.</li>
+<li>If the terminal has neither, the game is played in text, with a caption in the picture box.</li>
+</ol>
+<p>The result for each caller is written to <code>data\door.log</code>, for example:
+<code>caller "Skelly" node 1: ... syncterm=true jpegxl=true sixel=false audio=true cell=8x16</code>.</p>
+<h2 id="sound">Sound</h2>
+<p>The original game's sounds and music are included as Ogg Vorbis files: the ambience and effects of every scene, the fight and sneak music, the town map tune, the newspaper and the intro. They play where the Flash client played them.</p>
+<ul>
+<li><strong>In the door,</strong> the door asks <code>APC SyncTERM:Q;libsndfile</code>, then <code>libsndfileFormat;32;96</code> to check for Ogg Vorbis.</li>
+<li>If the terminal answers yes, each sound is uploaded into its cache once and played with SyncTERM's audio commands: <code>A;Load</code>, <code>A;Copy</code>, <code>A;Queue</code> (looping for ambience and music) and <code>A;Flush</code> (fade out).</li>
+<li>Terminals that don't answer get no sound.</li>
+<li>Add <code>--nosound</code> to the door command line to turn sound off for everyone.</li>
+<li><strong>On the web,</strong> there is a speaker button in the top bar, remembered per browser.</li>
+</ul>
+<p>For JPEG XL, callers need <strong>SyncTERM 1.4 or newer built with JPEG XL support</strong>. The screen is the usual 80×25. Pictures fill the top-right 40×14 cells (308×224 pixels with SyncTERM's 8×16 font).</p>
+<h2 id="install">Install</h2>
+<ol>
+<li>Unzip anywhere, for example <code>C:\doors\fq</code>. Keep the folders next to the exe.</li>
+<li>Check that it runs: <code>fq.exe admin players</code> should print <code>Day 1</code>.</li>
+<li>Optionally set it up:
+   <code>fq.exe admin config server_name="My BBS" turns_per_day=20</code></li>
+</ol>
+<h3 id="synchronet-windows-linux-raspberry-pi-bsd-macos">Synchronet (Windows, Linux, Raspberry Pi, BSD, macOS)</h3>
+<p>In <code>scfg</code>, go to <strong>External Programs → Online Programs (Doors) → (section) → Add</strong> and set:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Windows</th>
+<th>Linux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Name / Internal Code</td>
+<td>Funeral Quest / <code>FQ</code></td>
+<td>Funeral Quest / <code>FQ</code></td>
+</tr>
+<tr>
+<td>Start-up Directory</td>
+<td><code>C:\doors\fq</code></td>
+<td><code>/sbbs/xtrn/fq</code></td>
+</tr>
+<tr>
+<td>Command Line</td>
+<td><code>fq32.exe door %f</code></td>
+<td><code>./fq-linux door %f</code></td>
+</tr>
+<tr>
+<td>Multiple Concurrent Users</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Native Executable/Script</td>
+<td><strong>Yes</strong></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr>
+<td>I/O Method</td>
+<td><strong>Socket</strong></td>
+<td><strong>Socket</strong> (or Standard; add <code>--stdio</code> to the command line)</td>
+</tr>
+<tr>
+<td>BBS Drop File Type</td>
+<td><strong>Door32.sys</strong></td>
+<td><strong>Door32.sys</strong></td>
+</tr>
+<tr>
+<td>Place Drop File In</td>
+<td>Node Directory</td>
+<td>Node Directory</td>
+</tr>
+</tbody>
+</table>
+<p>On a Raspberry Pi, FreeBSD or a Mac, use that system's program name instead of <code>fq-linux</code> (<code>./fq-linux-arm door %f</code>, <code>./fq-freebsd door %f</code>, <code>./fq-macos-arm door %f</code>). The settings are the same as for Linux.</p>
+<p><code>%f</code> is Synchronet's code for the path of the drop file it just wrote. In Socket mode the door talks straight to the caller's telnet socket, using the handle on line 2 of DOOR32.SYS.</p>
+<h3 id="mystic-bbs-windows-3264-bit-linux">Mystic BBS (Windows 32/64-bit, Linux)</h3>
+<p>Add a menu command of type <strong>D3</strong> (run a DOOR32 door) whose data is:</p>
+<pre><code>C:\doors\fq\fq32.exe door C:\mystic\temp%N
+</code></pre>
+<p>Mystic writes <code>door32.sys</code> into each node's temp folder (<code>temp1</code>, <code>temp2</code>, …). The door accepts either the folder or the file itself, so pointing it at the node's temp folder is enough. <code>%N</code> is the node number (check the door command codes for your Mystic version, and use your own temp path if you moved it).</p>
+<h3 id="other-32-bit-and-linux-bbses-that-write-door32sys">Other 32-bit and Linux BBSes that write DOOR32.SYS</h3>
+<p>Any BBS that writes DOOR32.SYS and hands the door the socket handle works the same way:</p>
+<pre><code>fq32.exe door &lt;full path of door32.sys, or the folder it is in&gt;
+</code></pre>
+<ul>
+<li><strong>WWIV 5:</strong> <code>C:\doors\fq\fq32.exe door %E</code>. <code>%E</code> is WWIV's full path of <code>door32.sys</code>.</li>
+<li><strong>Maximus NG:</strong> use the <code>door32_run</code> (<code>xtern_door32</code>) menu command, with the node temp directory as the argument.</li>
+<li><strong>EleBBS, Talisman, ENiGMA½, Mystic and others:</strong> pass the DOOR32.SYS path the BBS gives you.</li>
+</ul>
+<p>DOOR.SYS and DORINFO1.DEF are also read, for BBSes that run the door over standard input and output; add <code>--stdio</code> in that case. A player is identified by their BBS alias. If several BBSes share one game folder, give each one <code>--bbs-id NAME</code>.</p>
+<h3 id="rlogin-bbs-gateways-and-syncterm">RLogin (BBS gateways and SyncTERM)</h3>
+<p>Instead of running the door, a BBS can send callers to Funeral Quest over <strong>RLogin</strong>, and players can also connect directly with SyncTERM's RLogin. Set it up under <strong>Settings → RLogin</strong> (web admin or fqedit):</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RLogin port (<code>rlogin_port</code>)</td>
+<td>Port to listen on, e.g. 1513. 0 = off. <code>fq telnet</code> takes RLogin callers too; <code>fq rlogin</code> runs just RLogin.</td>
+</tr>
+<tr>
+<td>Hosts allowed to connect (<code>rlogin_trusted</code>)</td>
+<td>IPs or ranges, comma separated. <code>*</code> = anyone. If the BBS is on the same machine, <code>127.0.0.1</code> is safest.</td>
+</tr>
+<tr>
+<td>BBS gateway secret (<code>rlogin_secret</code>)</td>
+<td>Shared secret the BBS sends with the caller's name. 12+ characters, kept private. Empty = no gateway logins.</td>
+</tr>
+<tr>
+<td>BBS ID for gateway callers (<code>rlogin_bbs_id</code>)</td>
+<td>Gateway callers are the same players as door callers from the BBS with this ID (the door's <code>--bbs-id</code>, normally <code>bbs</code>), so a caller keeps their parlor whether they come in by door or RLogin.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How callers are identified.</strong> RLogin has two user fields and no password field, and BBS programs disagree about which field holds the name and which holds the password. Synchronet sends the password first; SyncTERM has "RLogin" and "RLogin Reversed"; Mystic decides for itself. So Funeral Quest never relies on the order:</p>
+<ol>
+<li>The caller's address must be in <strong>Hosts allowed to connect</strong> and must pass the block lists and bans.</li>
+<li><strong>BBS gateway:</strong> if exactly one field is the gateway secret, the other is the caller's name, and it's trusted because the BBS already checked the caller. A new name gets the "set up your parlor" screen.</li>
+<li><strong>Their own password:</strong> otherwise both orders are tried as Funeral Quest logon + password.</li>
+<li><strong>Anything else</strong> gets the normal log-on screen, where they can log on or open a parlor. A name on its own is never trusted.</li>
+</ol>
+<p>Failed log-ons count toward the same temporary bans as telnet and web log-ons. Callers coming in through a BBS gateway all arrive from the BBS's address, so the per-address connection limits don't apply to them. Passwords and the secret never appear on screen or in the logs.</p>
+<p>Setup files for Synchronet (an rlogin gate script), Mystic (an <code>IR</code> menu command) and SyncTERM are in <code>extras/rlogin/</code>, with a testing checklist.</p>
+<h3 id="test-it-without-a-bbs">Test it without a BBS</h3>
+<pre><code>fq.exe telnet --port 2323
+</code></pre>
+<p>Then connect SyncTERM to <code>localhost:2323</code>. Type <code>NEW</code> to make a character; the logon name and password also work on the web site.</p>
+<h2 id="web-server">Web server</h2>
+<pre><code>fq.exe web --port 8080
+</code></pre>
+<p>Then open <code>http://localhost:8080/</code>. Run the web server in the <strong>same folder</strong> as the door so both share <code>data\world.json</code>. To keep it running on Windows, use Task Scheduler ("At startup") or a service wrapper such as NSSM. For a public site, use HTTPS: either <code>--cert</code>/<code>--key</code> (see Security) or a proxy such as Caddy or IIS with <code>--trust-proxy</code>. The web server logs to <code>data\server.log</code> and <code>data\security.log</code>.</p>
+<p>BBS players can also play in a browser: in the door, open <strong>Stats → Web login</strong> to pick a web logon name and password for the same parlor.</p>
+<p>Browsers with native JPEG XL (Safari) show the art directly. For other browsers the page includes a small libjxl WebAssembly decoder, so the art is still JPEG XL.</p>
+<h2 id="the-sysop-editor-fqedit">The sysop editor: fqedit</h2>
+<p><code>fqedit.exe</code> is the editor program, like the old server's menus. Run it in the Funeral Quest folder, or use <code>fqedit.exe --home C:\doors\fq</code>. It's full screen in a console window (Windows 10 or later, or any Linux terminal). Use the arrow keys, Enter to change something, and Esc to go back.</p>
+<ul>
+<li><strong>Game settings</strong>: every option with a description, grouped (Game, New players, Scoring, Odds, Tournament, Security, Network). Bad values are refused.</li>
+<li><strong>Players</strong>: find, edit any value (money, BP, turns, tags, luck, hearse...), close or reopen, set a password, delete.</li>
+<li><strong>Game texts</strong>: opens karma, ratings, news, events, risks, sales pitches, fortune cookies or the swear filter in Notepad (on Linux, <code>$EDITOR</code> or nano). When you close the editor, fqedit checks that the game can still read the file. If it can't, the old file is put back and your edit is kept as <code>name.txt.rejected</code>. The previous version is always kept as <code>name.txt.bak</code>.</li>
+<li><strong>News and maintenance</strong>: post news, run maintenance, reset the game.</li>
+<li><strong>Security</strong>: temporary bans (lift one, or ban an address), and the block lists.</li>
+<li><strong>Network links</strong>: your fingerprint and address, auto-accept, link to another server, accept requests, sync, block or remove. It also shows version and settings differences with each town (with "Use their settings") and settings votes (propose yours, accept or decline theirs).</li>
+<li><strong>Web sysop password</strong>, and <strong>View logs</strong>.</li>
+</ul>
+<p>You don't need to stop anything to use it. The door, telnet and web servers pick up changed settings and texts within seconds.</p>
+<h2 id="web-admin-pages">Web admin pages</h2>
+<p>The web server has a full admin section at <strong><code>http://yourserver:8080/sysop/</code></strong>. There's also an <strong>Admin</strong> link at the bottom of the game's log-on page.</p>
+<p><strong>Admin log-on.</strong> The first time, there's no admin password yet. The web server makes a one-time <strong>setup code</strong> and shows it only on the server:</p>
+<ul>
+<li>in the window where <code>fq web</code> is running (<code>ADMIN SETUP CODE: PT87-L365-N6P2</code>)</li>
+<li>in <code>data\server.log</code></li>
+<li>in <code>data\sysop-setup-code.txt</code></li>
+</ul>
+<p>Open <code>/sysop/</code>, type the code and choose an admin password (10 characters or more). After that, you log on with the password. Only someone who can see the server's screen or files can do the first setup, so a stranger who finds your admin page first can't take it over. You can also set or change the password with fqedit or <code>fq.exe admin sysop-password</code>.</p>
+<p><strong>Tabs:</strong></p>
+<ul>
+<li><strong>Status</strong>: version, day, players, who's playing right now, bans, links, and warnings about linked towns (who needs to update, settings that differ, votes waiting for you)</li>
+<li><strong>Settings</strong>: every setting, grouped:</li>
+<li>Game, New players, Scoring, Odds, Tournament</li>
+<li>Security</li>
+<li>Server: web and telnet ports, listen address, HTTPS certificate and key, "behind my own proxy", sound</li>
+<li>Network: this server's address, auto-accept, chat, mail and raids on or off, settings votes, raid limit</li>
+<li><strong>Players</strong>: find, edit, close, set a password, delete</li>
+<li><strong>Game texts</strong>: edit every text file in the browser, checked before saving</li>
+<li><strong>News &amp; maintenance</strong>: post news, run maintenance, reset the game</li>
+<li><strong>Security</strong>: temporary bans (lift one, or ban an address), and the block lists</li>
+<li><strong>Network</strong>: fingerprint, version, the auto-accept switch, linking, accepting, syncing, blocking and removing. It also shows each town's version and settings differences (with "Use theirs"), and settings votes (propose yours, accept or decline theirs).</li>
+<li><strong>Logs</strong>: <code>server.log</code>, <code>door.log</code>, <code>security.log</code></li>
+<li><strong>Password</strong>: change the admin password, or turn the admin pages off</li>
+</ul>
+<p>The <strong>Server</strong> settings take effect the next time <code>fq web</code>, <code>fq telnet</code> or the door starts. Switches on the command line (<code>--port</code>, <code>--cert</code>, <code>--key</code>, <code>--host</code>, <code>--trust-proxy</code>, <code>--nosound</code>) override them. To allow the admin pages only from your own network, set <strong>Admin pages allowed from</strong> (<code>sysop_allow</code>), e.g. <code>127.0.0.1, 192.168.0.0/16</code>. Everyone else gets "not found".</p>
+<h2 id="security">Security</h2>
+<p>The web server was written to be safe on the open internet:</p>
+<ul>
+<li>Passwords (players and sysop) are stored as salted PBKDF2-SHA256 hashes (120,000 rounds). Log-ons take the same time whether the name exists or not.</li>
+<li>Sysop sessions use a random 256-bit token kept in the browser tab, not a cookie, so other web sites can't act as you (no CSRF). They're tied to your IP address and end after 30 idle minutes, after 8 hours, or when the sysop password changes. Every sysop change is written to <code>security.log</code>.</li>
+<li>A strict Content-Security-Policy, plus <code>X-Frame-Options</code>, <code>nosniff</code> and <code>no-referrer</code> headers. No directory listings, hidden files or <code>.bak</code> files are served. Only GET, HEAD and POST are accepted, and request sizes, header sizes and timeouts are limited (protection against slow-loris attacks).</li>
+<li>Rate limits on every request, log-ons and new accounts (3 per address per hour).</li>
+<li>HTTPS is built in: <code>fq.exe web --port 443 --cert fullchain.pem --key privkey.pem</code> (TLS 1.2+, with HSTS). If you run it behind your own proxy (Caddy, IIS, nginx) instead, add <code>--trust-proxy</code> so bans hit the real caller's address. The forwarded address is only believed when the proxy is on the same machine or LAN.</li>
+</ul>
+<h3 id="https-certificate">HTTPS certificate</h3>
+<p>The web server can make its own <strong>self-signed certificate</strong>: Security tab → "Make a self-signed certificate", fqedit → Security → HTTPS certificate, or <code>fq.exe admin make-cert [host ...]</code>.</p>
+<ul>
+<li>It covers this server's web address host name, the computer's name, localhost and 127.0.0.1, or the names you give.</li>
+<li>It's saved in <code>data\tls\</code> and valid for 825 days.</li>
+<li>The web server is pointed at it, and <strong>This server's web address</strong> switches to <code>https://</code> by itself. Restart <code>fq web</code> to start using it.</li>
+</ul>
+<p><strong>For players:</strong> browsers warn that a self-signed certificate isn't from a known authority until each visitor accepts it. For a public site, a free Let's Encrypt certificate avoids that: use Caddy in front of <code>fq web</code>, or point <strong>HTTPS certificate file</strong> and <strong>HTTPS key file</strong> at certbot's files.</p>
+<p><strong>For linked Funeral Quest servers:</strong> a self-signed certificate is fine. They trust it the first time they connect and remember (pin) its fingerprint. If it changes later, they refuse it ("its HTTPS certificate has changed"), since that could be someone in between. If you really made a new one, the other sysops remove the link and link again. Messages between towns are signed either way; HTTPS adds privacy for letters on the way.</p>
+<p>When a town changes its address (say from http to https, or to another port on the same host), it tells its linked towns, and they update. A town can't move itself to a different host name.</p>
+<p><code>fq.exe admin cert</code> shows the current certificate and its fingerprint. <code>fq.exe admin https-off</code> goes back to plain HTTP.</p>
+<h3 id="block-lists-and-bans">Block lists and bans</h3>
+<p>These files are in the <code>data</code> folder. Each one is created with instructions the first time. Edit them in fqedit, on the sysop pages, or in Notepad; changes apply within seconds without a restart.</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>blocklist_ip.txt</code></td>
+<td>One IP or range per line: <code>203.0.113.7</code>, <code>198.51.100.0/24</code>, <code>2001:db8::/32</code></td>
+</tr>
+<tr>
+<td><code>blocklist_hosts.txt</code></td>
+<td>Host names, with <code>*</code> wildcards: <code>*.badisp.example</code>. Matched against the caller's reverse DNS; plain names are also looked up to their IPs</td>
+</tr>
+<tr>
+<td><code>allowlist_ip.txt</code></td>
+<td>Never blocked or banned. Your own address and LAN belong here so you can't lock yourself out (127.0.0.1 is there already)</td>
+</tr>
+<tr>
+<td><code>tempbans.json</code></td>
+<td>Temporary bans, shared by the telnet server, the web server and every door node</td>
+</tr>
+</tbody>
+</table>
+<p>Blocked callers are refused by the telnet server, the web game, the sysop pages and the network link.</p>
+<p><strong>Temporary bans</strong> happen automatically. An address is banned for 30 minutes after <strong>5 strikes in 10 minutes</strong>, and each repeat ban doubles (1 h, 2 h, 4 h... up to 7 days). A strike is:</p>
+<ul>
+<li>a wrong telnet, web or sysop password, or going over the log-on rate limit</li>
+<li>a telnet log-on as an attack-bot name (<code>root</code>, <code>admin</code>, <code>support</code>, <code>ubnt</code>, <code>enable</code>, <code>shell</code>...). That's an instant ban</li>
+<li>more than 8 new telnet connections in a minute (instant ban), or more than 3 at once</li>
+<li>a forged or replayed network message, or flooding the web server</li>
+</ul>
+<p>Telnet callers also have 3 minutes to log on before they're disconnected. You can change the limits under Settings → Security. See and lift bans in fqedit, on the sysop pages, or with:</p>
+<pre><code>fq.exe admin bans
+fq.exe admin unban 203.0.113.7
+fq.exe admin ban 203.0.113.7 1440        (minutes)
+</code></pre>
+<p>In door mode the BBS handles the connection, so use your BBS's own IP filters for door callers. The game's block lists cover the telnet and web servers.</p>
+<h2 id="linking-towns-together-funeral-quest-network">Linking towns together (Funeral Quest network)</h2>
+<p>Any number of Funeral Quest servers can link up. Linked towns share:</p>
+<ul>
+<li><strong>Real-time Cafe chat</strong>: what's said in your Pale Horse Cafe shows up in theirs a split second later as <code>[Deathville] Alice: hi</code>, and the other way around. <code>/net</code> in the cafe lists linked towns and who's on.</li>
+<li><strong>Network rankings</strong>: the rankings get an <strong>All towns</strong> button (and the web log-on page gets an "All linked towns" link).</li>
+<li><strong>Letters</strong>: "Write a letter" also finds players in linked towns. Out-of-town letters have a working <strong>Reply</strong> button. Letters that can't be delivered come back to the sender.</li>
+<li><strong>Raids</strong>: a visit to a rival parlor, and hiring the Twins at the desk, can also target a parlor in a linked town. See <strong>Raids between towns</strong> below.</li>
+</ul>
+<p>To link:</p>
+<ol>
+<li>Run something that carries the network: <code>fq.exe web</code>, <code>fq.exe telnet</code> or <code>fq.exe net</code> (see <strong>Linking without the web server</strong>).</li>
+<li>Set <strong>This server's web address</strong> (<code>net_public_url</code>), e.g. <code>http://bbs.example.com:8080</code>, so the other server can reach you back. Leave it empty if your server can't be reached from outside; it then links <strong>outbound only</strong>.</li>
+<li>In fqedit → Network links → <strong>Link to another server</strong>, or on the sysop pages → Network, type the other server's address and port (<code>theirbbs.example.com:8080</code>). You can also run <code>fq.exe admin link theirbbs.example.com:8080</code>.</li>
+<li>The other sysop sees <strong>wants to link</strong> and accepts it (or links to you too). If they turned on <strong>Accept link requests automatically</strong> (<code>net_auto_accept</code>; it's a switch on the sysop Network tab and in fqedit), this happens by itself. From then on the towns stay in touch.</li>
+</ol>
+<p>Each server can use any port; it's part of the address. Leave the port off only if it's 80 (<code>http://</code>) or 443 (<code>https://</code>).</p>
+<h3 id="linking-without-the-web-server">Linking without the web server</h3>
+<p>The web game isn't needed to be linked. Any of these programs runs the town's network link:</p>
+<table>
+<thead>
+<tr>
+<th>You run</th>
+<th>Network link</th>
+<th>Other towns reach you on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>fq web</code></td>
+<td>yes</td>
+<td>the web port</td>
+</tr>
+<tr>
+<td><code>fq telnet</code></td>
+<td>yes</td>
+<td>the <strong>network port</strong> (<code>net_port</code> setting or <code>--net-port</code>), if you set one</td>
+</tr>
+<tr>
+<td>only the door</td>
+<td>run <code>fq net</code> alongside it (e.g. at startup)</td>
+<td>the network port, if you set one (<code>fq net --port 8081</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Only one program per town does the network work at a time. If you run <code>fq web</code> and <code>fq telnet</code> together, one does it and the other stands by, taking over if the first one stops.</p>
+<p><strong>Outbound only.</strong> With no network port, and no web server reachable from outside, a town connects out only. It works behind a firewall or router with nothing forwarded. Leave <strong>This server's web address</strong> empty and link to the other towns by their address; nobody can link to you by address. An outbound-only town still gets everything by asking on each connection:</p>
+<ul>
+<li>real-time Cafe chat, both ways</li>
+<li>network rankings, letters both ways, settings votes, version and settings checks</li>
+<li>its players can raid other towns</li>
+</ul>
+<p>The one thing it can't have is visitors: nobody can connect to it, so players from other towns can't raid it. Other towns list it as <strong>outbound only</strong> (the sysop pages, fqedit and <code>fq admin links</code> all say so), its players don't come up as raid targets, and <code>/net</code> in the Cafe marks it "connects out only". A town that normally can be reached but currently can't be is shown as <strong>not reachable</strong>.</p>
+<p>To be fully connectable without the web game, set <strong>Network port</strong> (<code>net_port</code>, Settings → Server) and forward it on your router. Then set <strong>This server's web address</strong> to <code>http://your.address:thatport</code>.</p>
+<h3 id="how-linked-servers-talk">How linked servers talk</h3>
+<p>All network traffic goes to these addresses on the web port (or the network port). Door nodes don't connect to other servers for chat or mail; they share the <code>data</code> folder with whichever program runs the network.</p>
+<table>
+<thead>
+<tr>
+<th>Address</th>
+<th>What for</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/fed/hello</code></td>
+<td>link requests</td>
+<td>when a sysop links or accepts</td>
+</tr>
+<tr>
+<td><code>/fed/sync</code></td>
+<td>player lists, chat, letters, game version and settings, settings votes</td>
+<td>every 30 seconds, and within moments of new mail</td>
+</tr>
+<tr>
+<td><code>/fed/listen</code></td>
+<td>real-time chat: held open until someone in that town speaks (up to 25 s), then asked again at once</td>
+<td>all the time</td>
+</tr>
+<tr>
+<td><code>/fed/raid</code></td>
+<td>one step of a raid</td>
+<td>as the raider plays</td>
+</tr>
+</tbody>
+</table>
+<p>There's no central hub. Every pair of towns links directly, and messages aren't passed along, so link to every town you want to talk to.</p>
+<h3 id="versions-and-game-settings">Versions and game settings</h3>
+<p>Every handshake carries the game version and the town's game rules: turns per day, starting stats, scoring, odds, daily limits, tournament mode and out-of-town raids per day. Town name, security and housekeeping settings stay private and aren't compared.</p>
+<ul>
+<li><strong>Versions</strong>: if a linked town runs an older version, both sysops are told which town needs to update. A town from before 1.3.0 doesn't send its version and is reported as needing to update.</li>
+<li><strong>Settings</strong>: each sysop sees which settings differ, with "here" and "there" values. Look on the sysop Status and Network tabs, in fqedit → Network links (towns marked NEEDS ATTENTION), with <code>fq admin links</code>, and in <code>server.log</code>. Copy the other town's values one at a time or all at once ("Use theirs", or <code>fq admin use-theirs Gravesend</code>), or agree with the other sysop on new ones.</li>
+</ul>
+<h3 id="settings-votes">Settings votes</h3>
+<p>To get every linked town on the same rules, <strong>propose</strong> yours. Use the sysop pages → Network → "Propose this town's settings to all linked towns", fqedit → Network links → Settings votes, or <code>fq admin propose</code>.</p>
+<ol>
+<li>Every town you're linked to gets the proposal. Its sysop is asked to <strong>accept the settings from your town</strong>, and sees a table of what would change for them.</li>
+<li>Each sysop answers <strong>Accept</strong> or <strong>Decline</strong> (web, fqedit, or <code>fq admin votes</code> then <code>fq admin vote &lt;id&gt; yes</code>). They can change their answer until the vote ends.</li>
+<li>When <strong>more than half of all the towns in the vote</strong> have accepted (the proposing town counts as a yes), the vote passes. Every town in it switches to the proposed settings, including towns that declined. A town whose sysop turned on <strong>Don't apply settings votes</strong> (<code>net_vote_apply_off</code>) stays as it is. With just two towns, the other town has to accept.</li>
+<li>If enough towns decline that it can't pass, it fails. Votes also end after 7 days.</li>
+</ol>
+<p>Each town signs its vote with its own key. A town only applies a passed vote after checking the signed votes itself, so the proposing town can't fake a result. Only the game settings listed above can be changed by a vote. A new proposal from the same town replaces its open one.</p>
+<p>Each server has its own key. Its <strong>fingerprint</strong> (like <code>3DDF-B131-5126-B736</code>) is shown in the editor; compare fingerprints with the other sysop by email or phone if you want to be sure who you're linking to.</p>
+<p><strong>What other servers can and can't do.</strong> Each server owns its own players; a linked server can't edit them. Here's exactly what crosses the link:</p>
+<ul>
+<li>What you send is your players' <strong>public</strong> name, parlor, sex, BP and online status, your public Cafe lines, and letters your players wrote to theirs. That's all. Passwords, logons, money, tags, private messages and files never leave your server.</li>
+<li>What they send is only added to your server, after checks. Raids are the one thing that changes your players, and your own server runs those with the normal game rules (see Raids between towns). Their player list is stored separately and only shown in rankings. Their chat lines are added to your Cafe, and their letters are delivered to the named player's mailbox. All of it has control codes and escape sequences removed and is cut to a maximum size, so a hostile server can't paint over your callers' screens.</li>
+<li>Nothing they send can directly change, delete or read a player, a setting, a text file or anything else on your server. Even a raid is only a request: your server decides what happens.</li>
+<li>Every message is signed (Ed25519) and carries a time stamp, a one-time number and your server's ID. Forged, altered, replayed or misdirected messages are rejected, and the address that sent them gets strikes.</li>
+<li>Link requests need your OK unless you turn on <strong>Accept requests automatically</strong>. If a server you already know shows up with a different key, it's flagged <strong>KEY CHANGED</strong> and isn't trusted until you accept it.</li>
+<li>You can <strong>Block</strong> or <strong>Remove</strong> a server at any time. Removing it deletes its players and any letters waiting to go to it.</li>
+</ul>
+<h3 id="raids-between-towns">Raids between towns</h3>
+<p>Players can do everything to a parlor in a linked town that they can do in their own:</p>
+<ul>
+<li><strong>Break in</strong>: Rival parlors → Visit, then type part of the name. Players in linked towns come up as "Bobby of Bone Yard, in the town of Gravesend". It uses one of your parlor visits for the day, just like a local visit.</li>
+<li><strong>Pick the padlock</strong>: each lockpick weakens the padlock by 5 to 10 points, and the owner gets a letter about it. This is the vandalism.</li>
+<li><strong>Steal tags</strong>: up to 3 tags, unless the parlor has a safe.</li>
+<li><strong>Fight</strong> the owner, with the same blows, soul smashes, hit points and first-swing rule as at home. The winner takes BP and up to 4 tags from the loser's pockets. A loser who was attacked goes under police protection, and the attacker's yell or mutter goes in both towns' newspapers.</li>
+<li><strong>Arson</strong>: hire the Twins (6 gold tags) to burn a parlor in another town. A fire alarm usually saves it; otherwise 5% of its gravestones burn, and all its wood tags unless it has a safe. The gold is only spent if the Twins actually start a fire.</li>
+</ul>
+<p>The same protections as at home apply: you can't raid someone who's playing right now, who's under police protection, or whom somebody else is already raiding.</p>
+<p><strong>How it stays fair.</strong> Each step goes to the defender's own server, which acts as referee:</p>
+<ol>
+<li>The attacker's server sends the step (look, pick lock, steal, fight, swing, run, yell, arson) with the attacker's fighting stats, signed like all network messages.</li>
+<li>The defender's server runs the normal game rules against its own player and changes only its own player. It answers with numbers (damage, tags taken, BP won), never with screen text.</li>
+<li>The attacker's server writes the story from those numbers and changes only its own player.</li>
+</ol>
+<p>Neither side has to trust the other:</p>
+<ul>
+<li>The defender's server checks that the attacker really is one of the other town's players. It won't accept more BP than that town last reported for them, or strength, hit points or burials more than twice what its own toughest player has.</li>
+<li>The attacker's server won't accept more than the normal maximum: 3 tags for a theft, 4 from a fight, and BP no more than 2% of what the defender's town reported for them.</li>
+<li>Each player can be raided or burned from out of town at most <strong>3 times a day</strong> (<code>net_raids_per_day</code>).</li>
+<li>The defender gets a letter naming the attacker and their town every time, and fights and fires make the paper.</li>
+<li>Steps arrive one at a time. If the other town can't be reached, the player is told "the road is closed" and nothing changes on either side.</li>
+</ul>
+<p>Turn raids off with <strong>Turn off out-of-town raids</strong> (<code>net_raids_off</code>). That stops raids in both directions for your town.</p>
+<p>Turn off parts of it with <code>net_chat_off</code>, <code>net_mail_off</code> and <code>net_raids_off</code>. Network data is in <code>data\net\</code>. <code>identity.json</code> is your server's private key, so keep it with your backups and don't share it.</p>
+<h2 id="sysop-commands">Sysop commands</h2>
+<pre><code>fq.exe admin players                      list parlors (shows who's online, bbs/web logons)
+fq.exe admin config                       show settings
+fq.exe admin config key=value ...         change settings
+fq.exe admin maint                        run the nightly maintenance now
+fq.exe admin reset [--wipe]               new game (--wipe also deletes accounts)
+fq.exe admin delete &lt;name&gt;                close a parlor
+fq.exe admin news &lt;text&gt;                  put a notice on today's front page
+fq.exe admin sysop-password [pw|off]      web sysop pages
+fq.exe admin bans | ban &lt;ip&gt; [min] | unban &lt;ip&gt;
+fq.exe admin make-cert [host ...] | cert | https-off
+fq.exe rlogin [--port 1513]               run only the RLogin server
+fq.exe admin id | links | link &lt;addr:port&gt; | accept &lt;town&gt; | unlink &lt;town&gt; | block-link &lt;town&gt;
+fq.exe admin use-theirs &lt;town&gt; [setting ...]   copy a linked town's game settings
+fq.exe admin propose                           start a settings vote among all linked towns
+fq.exe admin votes | vote &lt;id&gt; yes|no          see and answer settings votes
+fq.exe version                                 which version this is
+</code></pre>
+<p>A new game day starts at local midnight, on the first action after midnight (the web server also checks every minute).</p>
+<p><code>data\world.json</code> is the whole game. To back up, copy the <code>data</code> folder. Changes are protected by a lock file (<code>world.lock</code>), so any number of door nodes, the web server and the editor can run at once.</p>
+<h2 id="building-from-source">Building from source</h2>
+<p>The source uses Go 1.24+ and only Go's standard library.</p>
+<pre><code>build.bat          (Windows)     or     ./build.sh     (Linux, macOS, BSD)
+go test ./...      plays thousands of random moves; checks raids, battles, mail, chat, bans,
+                   block lists, web security, and two linked towns chatting, writing letters
+                   and raiding each other over HTTP (including a town that tries to cheat)
+</code></pre>
+<p>Both scripts build every system listed above. To build just one, for example a Raspberry Pi:
+<code>CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=7 go build -o fq-linux-arm .</code> and the same with <code>./cmd/fqedit</code>.</p>
+<h2 id="whats-ported">What's ported</h2>
+<p>Everything from the original server and its scripts:</p>
+<ul>
+<li>customer generation and the four sales tactics, with mood and resistance</li>
+<li>psychology skills, risks, random events, arson, found tags</li>
+<li>Yang's, and the cafe with its slash commands and tag giving</li>
+<li>rival-parlor raids: padlocks, lockpicks, safes, stealing, fighting, police protection</li>
+<li>Spirit University, the bank, Di-Mart (hearses, security, supplies)</li>
+<li>the newspaper and old papers, the Book of Deeds, rankings, letters</li>
+<li>nightly maintenance with top-seller bonuses, and tournaments</li>
+</ul>
+<h2 id="credits">Credits</h2>
+<p><em>Funeral Quest</em> © 2001 Robinson Technologies: Seth A. Robinson (programming, design), Akiko Robinson (art), Greg Smith (additional design). The code and Akiko Robinson's artwork are used under the <strong>Proton SDK license</strong> (<code>LICENSE-ProtonSDK.txt</code>). The sounds and music come from the original game's Flash files; the source release licenses them for use in Funeral Quest only, so don't reuse them in other projects. The browser JPEG XL decoder is @jsquash/jxl (libjxl, Apache-2.0).</p></main></body></html>
