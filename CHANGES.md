@@ -2,6 +2,17 @@
 
 Releases are numbered major.minor.patch. `fq version` (or `fqedit --version`) shows which one you have, and linked towns compare versions automatically.
 
+## 1.8.1 (2026-11-27)
+
+* **Every screen fits the window, with nothing to scroll.** The web game no longer makes you scroll to reach the buttons or to read a message. The picture sizes itself to the window, and when a message is long the picture gets smaller to make room for it (and on short screens the side panel packs itself tighter), so the whole message and the buttons are always in view. The text box is only as big as it needs to be, with the buttons right underneath. The only things that still scroll are the ones that can't fit any other way, inside their own box: the cafe's chat log, a very long newspaper page and long ranking lists. Checked on every screen at 1280x720, 1366x768, 1120x873 and 1920x1080.
+  * **Stats** is a compact two-column sheet instead of one long list.
+  * **Challenges** opens as its own full-width page (and a full page in the door) instead of squeezing into the text box.
+  * Rankings, Rival parlors' list, the challenges page and the newspaper hide the empty text box under them, so the newspaper gets the whole screen; the side panel and title bar are tighter.
+  * The **log-on page** fits too: smaller artwork and a two-column "New mortician" form.
+  * Phones and very small windows still scroll normally.
+* **Fixed:** letters with no picture of their own (the top-seller and top-parlor letters, letters from other players and from linked towns, returned mail) showed a broken picture. They now show the desk, and the top-seller and top-parlor letters show a prize picture.
+* **Fixed:** on the town map, the name that pops up when you point at a building was cut off for buildings at the top edge (Spirit University, the Graveyard). Names now show under buildings along the top, and line up with buildings at the left and right edges, so they always stay on the map.
+
 ## 1.8.0 (2026-11-26)
 
 **Upgrading is safe:** the first time 1.8.0 starts, it zips your whole `data` folder into `data/backups/fq-before-upgrade-1.8.0-<date>.zip`, then adds the new fields to your players. Nothing is removed or reset: names, logons, passwords, Bury Points, tags, cash, stats, rankings, letters and settings all stay as they were. New settings get their defaults. (Going back to 1.7 later? Restore that backup: an older version would quietly drop levels and challenges when it saves.)

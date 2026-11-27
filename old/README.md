@@ -1,6 +1,6 @@
 # Funeral Quest — BBS door + web server (Go)
 
-Version 1.3.0. **New here? Start with `QUICK-INSTALL.md`.** See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
+Version 1.8.0. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
 
 **Contents:** The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits
 
@@ -32,7 +32,7 @@ Every system has two programs: **fq** (the game: door, web server, telnet server
 | OpenBSD x86-64 | `fq-openbsd` | `fqedit-openbsd` |
 | NetBSD x86-64 | `fq-netbsd` | `fqedit-netbsd` |
 
-The downloads are split by system (Windows, Linux, macOS, BSD). Each one is complete: the programs for that system plus all the art, sounds, texts and source code. The examples below use `fq.exe`; on other systems use the matching name, e.g. `./fq-linux`. On Unix-like systems you may need `chmod +x fq-* fqedit-*` first. On macOS, the programs aren't signed by Apple, so the first time run `xattr -d com.apple.quarantine fq-macos-* fqedit-macos-*` (or right-click → Open).
+The downloads are split by system: a Windows `.zip`, a Linux `.tar.gz` (unpack with `tar -xzf`), and a source `.zip`. For macOS and the BSDs, build from the source archive (`./build.sh`, needs Go 1.24+). Each one is complete: the programs for that system plus all the art, sounds, texts and source code. The examples below use `fq.exe`; on other systems use the matching name, e.g. `./fq-linux`. On Unix-like systems you may need `chmod +x fq-* fqedit-*` first. On macOS, the programs aren't signed by Apple, so the first time run `xattr -d com.apple.quarantine fq-macos-* fqedit-macos-*` (or right-click → Open).
 
 ```
 assets/       pictures: assets/door (JPEG XL + PBM masks + PNG twins), assets/web (JPEG XL)
@@ -40,6 +40,7 @@ assets/       pictures: assets/door (JPEG XL + PBM masks + PNG twins), assets/we
 gamedata/     the original game text files (risks, sales pitches, events, news...) - edit freely
 web/public/   the browser page
 data/         created on first run: world.json (the game), news/, logs, block lists, net/ (links), tls/
+HELP.txt      plain-text help: every command and setting (opens in Notepad)
 docs/         this manual, the quick install guide and the change list as web pages
 extras/       RLogin setups for Synchronet, Mystic and SyncTERM
 ```
@@ -217,6 +218,41 @@ The web server was written to be safe on the open internet:
 * Rate limits on every request, log-ons and new accounts (3 per address per hour).
 * HTTPS is built in: `fq.exe web --port 443 --cert fullchain.pem --key privkey.pem` (TLS 1.2+, with HSTS). If you run it behind your own proxy (Caddy, IIS, nginx) instead, add `--trust-proxy` so bans hit the real caller's address. The forwarded address is only believed when the proxy is on the same machine or LAN.
 
+### Behind Caddy (or another proxy)
+
+Caddy can handle HTTPS for you, with a free certificate it renews by itself, and pass requests on to `fq web`. Run `fq web` on a local port (e.g. 8080), set **Behind my own proxy** to Yes (Settings → Server) so bans hit the real caller, and use one of these Caddyfiles:
+
+**Its own (sub)domain** (`https://fq.example.com/`):
+```
+fq.example.com {
+    reverse_proxy 127.0.0.1:8080
+}
+```
+
+**A folder on your website** (`https://example.com/funeralquest/`):
+```
+example.com {
+    handle_path /funeralquest/* {
+        reverse_proxy 127.0.0.1:8080
+    }
+    # ... the rest of your site
+}
+```
+Use `handle_path`, not `handle`: it removes `/funeralquest` before passing the request on. The game, the admin pages and the network link all work inside a folder.
+
+Then set **This server's web address** to the address the world uses: `https://fq.example.com` or `https://example.com/funeralquest`. **Don't** use the local port (`:8080`), which only Caddy can reach. Other towns link to you with that same address.
+
+**Or keep linking out of Caddy altogether, with a network port:**
+
+1. Settings → Server → **Network port** = e.g. `8090`, then restart `fq web`. It opens a second port that only answers other Funeral Quest servers; the game isn't served there.
+2. Forward that port on your router to the Funeral Quest machine.
+3. Settings → Network → **Linked servers use the network port only** = Yes. It's also a checkbox on the Network tab and a switch in fqedit → Network links.
+   * The address given to other towns becomes your host name on the network port, e.g. `http://tiestudio.ca:8090`. Just set **This server's web address** to your host name (any address on that host will do).
+   * The web port stops answering other servers, so linking never goes through Caddy.
+   * Towns already linked to you are told the new address and switch by themselves.
+
+The certificate is optional on the network port. By default it uses plain HTTP, which is fine because messages between towns are signed and can't be faked or changed. Set **HTTPS on the network port** (Settings → Server) to use your certificate there too, which also keeps letters private on the way.
+
 ### HTTPS certificate
 
 The web server can make its own **self-signed certificate**: Security tab → "Make a self-signed certificate", fqedit → Security → HTTPS certificate, or `fq.exe admin make-cert [host ...]`.
@@ -287,7 +323,7 @@ The web game isn't needed to be linked. Any of these programs runs the town's ne
 
 | You run | Network link | Other towns reach you on |
 |---|---|---|
-| `fq web` | yes | the web port |
+| `fq web` | yes | the web port, or the **network port** if you set one |
 | `fq telnet` | yes | the **network port** (`net_port` setting or `--net-port`), if you set one |
 | only the door | run `fq net` alongside it (e.g. at startup) | the network port, if you set one (`fq net --port 8081`) |
 
@@ -297,9 +333,11 @@ Only one program per town does the network work at a time. If you run `fq web` a
 
 * real-time Cafe chat, both ways
 * network rankings, letters both ways, settings votes, version and settings checks
-* its players can raid other towns
+* raids both ways: its players can raid other towns, and **other towns' players can raid it too**
 
-The one thing it can't have is visitors: nobody can connect to it, so players from other towns can't raid it. Other towns list it as **outbound only** (the sysop pages, fqedit and `fq admin links` all say so), its players don't come up as raid targets, and `/net` in the Cafe marks it "connects out only". A town that normally can be reached but currently can't be is shown as **not reachable**.
+**How raids get in.** Nobody can connect to an outbound-only town, so it fetches its visits instead. It keeps a waiting request open on every town it's linked to. When a player there breaks in, picks a lock, steals, fights or hires the Twins, that town queues the step. The outbound-only town picks it up at once, referees it with its own rules on its own player, and sends the result back. To players it feels the same as any other town; each step takes a fraction of a second.
+
+While it's online and fetching, other towns treat it as fully linked. If its server is off, it's shown as **outbound only and not online right now**, and its players can't be visited until it's back. A town that normally can be reached but currently can't be is shown as **not reachable**.
 
 To be fully connectable without the web game, set **Network port** (`net_port`, Settings → Server) and forward it on your router. Then set **This server's web address** to `http://your.address:thatport`.
 
@@ -310,11 +348,32 @@ All network traffic goes to these addresses on the web port (or the network port
 | Address | What for | When |
 |---|---|---|
 | `/fed/hello` | link requests | when a sysop links or accepts |
-| `/fed/sync` | player lists, chat, letters, game version and settings, settings votes | every 30 seconds, and within moments of new mail |
+| `/fed/sync` | player lists, chat, letters, newspaper stories, game version and settings, settings votes | every 30 seconds, and within moments of new mail |
 | `/fed/listen` | real-time chat: held open until someone in that town speaks (up to 25 s), then asked again at once | all the time |
 | `/fed/raid` | one step of a raid | as the raider plays |
 
-There's no central hub. Every pair of towns links directly, and messages aren't passed along, so link to every town you want to talk to.
+There's no central hub. Every pair of towns links directly, but you don't have to link to each one yourself: **introductions** fill in the network (below).
+
+### Introductions: joining a whole network with one link
+
+Linked towns tell each other which other towns they're linked to. If you link to town 5, and town 5 is linked to towns 2, 3 and 4:
+
+1. Town 5 **introduces** 2, 3 and 4 to you, and introduces you to them.
+2. Your town sends each of them a link request, and they send you one.
+3. Towns that follow introductions accept each other by themselves. A few moments later, every town is linked directly to every other, and chat, rankings, letters, raids and votes work between all of them.
+
+You only ever type in one address. The Network tab lists introduced towns that are still being linked, and `fq admin links` shows them too. Requests from introduced towns say who introduced them.
+
+**Settings** (Settings → Network):
+* **Don't follow introductions** (`net_intro_off`): link only to towns you add yourself. Introduced towns are listed for you to add by hand.
+* **Don't introduce my links** (`net_share_links_off`): don't tell linked towns which other towns you're linked to.
+* **Accept introduced towns automatically** (`net_accept_introduced`): accept a link request from any town that one of your linked towns is linked to, without asking. Two towns that both follow introductions link up anyway. This matters for towns that connect out only, since nobody can send *them* a request.
+
+**Safety:**
+* An introduction comes in a signed message from a town you already trust.
+* Linking checks that the introduced town answers with exactly the ID it was introduced with, so a lying introducer can't point you at an impostor.
+* Towns you **removed or blocked** are never brought back by an introduction. To link one again, add it by address yourself.
+* Two outbound-only towns can't link to each other, since neither can be reached. Each still links with every reachable town.
 
 ### Versions and game settings
 
@@ -371,6 +430,8 @@ Neither side has to trust the other:
 * The defender gets a letter naming the attacker and their town every time, and fights and fires make the paper.
 * Steps arrive one at a time. If the other town can't be reached, the player is told "the road is closed" and nothing changes on either side.
 
+Raids into a town that connects out only work the same way: it fetches the steps from the raider's town (see **Outbound only** above).
+
 Turn raids off with **Turn off out-of-town raids** (`net_raids_off`). That stops raids in both directions for your town.
 
 Turn off parts of it with `net_chat_off`, `net_mail_off` and `net_raids_off`. Network data is in `data\net\`. `identity.json` is your server's private key, so keep it with your backups and don't share it.
@@ -382,6 +443,7 @@ fq.exe admin players                      list parlors (shows who's online, bbs/
 fq.exe admin config                       show settings
 fq.exe admin config key=value ...         change settings
 fq.exe admin maint                        run the nightly maintenance now
+fq.exe admin backup | backups             zip the data folder now | list the backups
 fq.exe admin reset [--wipe]               new game (--wipe also deletes accounts)
 fq.exe admin delete <name>                close a parlor
 fq.exe admin news <text>                  put a notice on today's front page
@@ -398,7 +460,17 @@ fq.exe version                                 which version this is
 
 A new game day starts at local midnight, on the first action after midnight (the web server also checks every minute).
 
-`data\world.json` is the whole game. To back up, copy the `data` folder. Changes are protected by a lock file (`world.lock`), so any number of door nodes, the web server and the editor can run at once.
+`data\world.json` is the whole game. The game backs up the `data` folder by itself every week (see below); you can also just copy the folder. Changes are protected by a lock file (`world.lock`), so any number of door nodes, the web server and the editor can run at once.
+
+## Backups and upgrades
+
+Every week (setting "Backup every", Security tab, 7 days by default) the game zips the `data` folder (players, settings, news, network keys, ban lists) into `data/backups/fq-backup-<date>.zip` and keeps the newest 8 ("Backups to keep"). Before a new version changes your data for the first time, it saves `fq-before-upgrade-<version>-<date>.zip`; those, and backups made by hand, are never deleted.
+
+* Back up now: web admin, News & maintenance tab, **Back up now** (the tab lists the backups too); `fq admin backup`; or fqedit, News and maintenance.
+* List them: `fq admin backups`.
+* Restore one: stop every Funeral Quest program, unzip the backup into the `data` folder (replacing what's there), and start again.
+
+Upgrading never resets players or settings: new settings get their defaults and new player fields are filled in (for 1.8.0, every parlor gets the level its Bury Points earn, up to 40). To go back to an older version, restore the backup made before the upgrade.
 
 ## Building from source
 
@@ -425,6 +497,17 @@ Everything from the original server and its scripts:
 * Spirit University, the bank, Di-Mart (hearses, security, supplies)
 * the newspaper and old papers, the Book of Deeds, rankings, letters
 * nightly maintenance with top-seller bonuses, and tournaments
+
+New in this port (the original left these unfinished):
+
+* **The church** does something now. Karma goes down for bad deeds (stealing tags, hiring the Twins, digging up graves, in town or in a linked town) and back up by donating tags, or by a once-a-day confession for players below 50 karma. Players with good karma can ask for a daily blessing that adds luck.
+* **The graveyard** (the cemetery on the town map; the original's graveyard button was "removed until I have a use for it"). Quests that cost a turn each, up to a daily limit: dig up a grave for treasure (or a curse, the groundskeeper, or a bony hand), answer the ghost's riddle in the mausoleum, hunt the ghoul, help the gravedigger for tags. Free: tend the graves once a day for karma, read headstones (one of them is a treasure hint), and see which parlors have filled the most plots.
+* All of it is set under **Church & graveyard** in the settings, and linked towns compare these settings like the other game rules.
+* **Cash.** After operating costs and insurance, players keep a net profit of 6 to 15 percent of each funeral's bill (like real funeral homes; a sale close to the customer's limit adds 2 percent), and the bank sells tags for cash at prices the sysop sets.
+* **Levels and dynasties:** players climb from level 1 to 60 (titles every 10 levels, gold tags each level, an extra daily turn every 10), with catch-up experience for players behind the town's average and no raiding anyone more than 15 levels below you. At 60 they can retire into the Hall of Legends and carry on as their heir ("Name Jr.", "III"...) with a family heirloom. Weekly challenges, rested turns (unused turns carry over up to 3 days) and optional seasons keep it going for people who don't play every day. Settings are under **Levels**.
+* **Automatic backups:** the data folder is zipped into `data/backups` every week and before every upgrade (see Backups and upgrades).
+* **Network news:** linked towns print each other's newspaper stories (announcements, crimes, fires, big sales, new parlors...), marked with the town's name. "Turn off network news" on the Network tab stops it.
+* **AI players** (3 by default, up to 8): computer-run parlors that sell funerals, shop, raid and burn parlors, talk in the cafe and advertise in the paper, and can be raided back. They're deliberately weaker than real players: part-time work, no daily bonuses, no training past the average human player, one raid a day, and each player raided by AI players at most once a day. Settings are under **AI players**; set "AI players" to 0 for none.
 
 ## Credits
 
