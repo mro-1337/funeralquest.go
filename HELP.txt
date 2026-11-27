@@ -1,4 +1,4 @@
-FUNERAL QUEST 1.8.2 - HELP
+FUNERAL QUEST 1.9.0 - HELP
 ==============================================================================
 Funeral Quest by Seth A. Robinson, ported to Go. One program (fq) runs the BBS
 door, the web game, the telnet and RLogin servers and the network link between
@@ -57,6 +57,7 @@ Funeral Quest
   fq admin make-cert [host ...]             make a self-signed HTTPS certificate (and use it)
   fq admin cert | https-off                 show the certificate / go back to plain HTTP
   fq version                                show the version
+  fq update [--check] [--yes] | undo        install the newest release from GitHub (data/ is kept)
 
   The full-screen editor is the separate program fqedit.
 
@@ -120,6 +121,13 @@ them.
   challenges_off           = false        No weekly challenges
   season_days              = 0            Season length (days)
 
+[Hospital]
+  heal_cost                = 1            Patch-up cost (gold tags)
+  morgue_cost              = 2            Morgue tip cost (gold tags)
+  morgue_turns             = 2            Customers from a morgue tip
+  volunteer_karma          = 2            Karma for volunteering
+  fight_full_hp            = false        Heal before every fight
+
 [AI players]
   ai_players               = 3            AI players
   ai_skill                 = 70           AI skill (%)
@@ -133,6 +141,13 @@ them.
 [Security]
   backup_days              = 7            Backup every (days)
   backup_keep              = 8            Backups to keep
+
+[Updates]
+  update_check_off         = false        Don't check for updates
+  update_repo              =              Get updates from
+  update_exit_only         = false        My service manager restarts it
+
+[Security]
   ban_strikes              = 5            Strikes before a ban
   ban_minutes              = 30           First ban length (minutes)
   ban_conn_per_minute      = 8            Connections per minute

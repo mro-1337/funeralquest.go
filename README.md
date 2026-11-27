@@ -1,6 +1,6 @@
 # Funeral Quest — BBS door + web server (Go)
 
-Version 1.8.2. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
+Version 1.9.0. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
 
 **Contents:** The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits
 
@@ -303,7 +303,7 @@ In door mode the BBS handles the connection, so use your BBS's own IP filters fo
 
 Any number of Funeral Quest servers can link up. Linked towns share:
 
-* **Real-time Cafe chat**: what's said in your Pale Horse Cafe shows up in theirs a split second later as `[Deathville] Alice: hi`, and the other way around. `/net` in the cafe lists linked towns and who's on.
+* **Real-time Cafe chat**: what's said in your Pale Horse Cafe shows up in theirs a split second later as `[Deathville] Alice: hi`, and the other way around. The cafe keeps a **chat wall**: walking in shows the last 30 lines of talk from the past two days. `/net` in the cafe lists linked towns and who's on.
 * **Network rankings**: the rankings get an **All towns** button (and the web log-on page gets an "All linked towns" link).
 * **Letters**: "Write a letter" also finds players in linked towns. Out-of-town letters have a working **Reply** button. Letters that can't be delivered come back to the sender.
 * **Raids**: a visit to a rival parlor, and hiring the Twins at the desk, can also target a parlor in a linked town. See **Raids between towns** below.
@@ -338,6 +338,8 @@ Only one program per town does the network work at a time. If you run `fq web` a
 **How raids get in.** Nobody can connect to an outbound-only town, so it fetches its visits instead. It keeps a waiting request open on every town it's linked to. When a player there breaks in, picks a lock, steals, fights or hires the Twins, that town queues the step. The outbound-only town picks it up at once, referees it with its own rules on its own player, and sends the result back. To players it feels the same as any other town; each step takes a fraction of a second.
 
 While it's online and fetching, other towns treat it as fully linked. If its server is off, it's shown as **outbound only and not online right now**, and its players can't be visited until it's back. A town that normally can be reached but currently can't be is shown as **not reachable**.
+
+**Night raids.** When a town can't be reached right now (an outbound-only town that's offline, or a town that's down), its players still show in **Rival parlors**, marked **night raid**. A night raid is planned in one go: pick steal, fight or arson (arson is paid up front). The plan is saved and handed to that town the next time it fetches. That town runs the whole raid on its own player with its own rules, and the result (spoils, letters to both players, the news) comes back on a later fetch. If the town doesn't fetch within 3 days, the raid is called off and anything paid is refunded.
 
 To be fully connectable without the web game, set **Network port** (`net_port`, Settings → Server) and forward it on your router. Then set **This server's web address** to `http://your.address:thatport`.
 
@@ -472,6 +474,23 @@ Every week (setting "Backup every", Security tab, 7 days by default) the game zi
 
 Upgrading never resets players or settings: new settings get their defaults and new player fields are filled in (from 1.8.0 on, every parlor upgraded from 1.7 or older gets the level its Bury Points earn, up to 40). To go back to an older version, restore the backup made before the upgrade.
 
+### Updating from the web admin pages
+
+From 1.9.0 on, the game can update itself from the project's [Releases page on GitHub](https://github.com/mro-1337/funeralquest.go/releases).
+
+* Once a day, `fq web` (and `fq telnet`, `fq net`, `fq rlogin`) asks GitHub whether there's a newer release. When there is, the web admin **Status** tab says so, and the log says so too.
+* The **Updates** tab shows the installed version, the newest release and what's new in it. **Install** does the rest:
+  1. downloads the Windows or Linux package and checks it isn't damaged;
+  2. backs up the data folder (`data/backups/fq-before-update-<version>-<date>.zip`, never deleted);
+  3. keeps a copy of every file it replaces (in `data/update`), then puts the new version in place. The `data` folder is never touched. A `gamedata` text you've edited (in the Game texts tab or by hand) is left alone, and the new one is saved beside it as `.new` to compare;
+  4. restarts the web server on the new version. Web players have to log on again. BBS door callers get the new version on their next call. Other running copies (`fq telnet`, `fq rlogin`) restart once nobody is online; `fq net` restarts right away.
+* **Go back to the previous version** puts the old files back and restarts. The data folder isn't changed; if the newer version changed it and you want it back too, restore the before-update backup.
+* Without the web server: `fq update --check` says whether there's a newer version, `fq update` installs it (it asks first; `--yes` doesn't), and `fq update undo` goes back.
+* Settings, **Updates** group: **Don't check for updates**; **Get updates from** (another GitHub project, `owner/name`); **My service manager restarts it**: if fq runs under NSSM, as a Windows service or under systemd, turn this on and fq exits with code 3 after an update instead of restarting itself, so the service manager starts the new version. (On Linux, restarting itself keeps the same process, so systemd is fine either way.)
+* Ready-made updates are for the Windows and Linux programs. On macOS or BSD, build the new version from the source package.
+
+**For whoever publishes releases:** the updater looks at the newest release on the Releases page (not files committed to the code). Each release needs a tag that's the version number with a `v` (`v1.9.1`), and the packages attached with their usual names: `FuneralQuest-1.9.1-Windows.zip` and `FuneralQuest-1.9.1-Linux.tar.gz` (and the source zip).
+
 ## Building from source
 
 The source uses Go 1.24+ and only Go's standard library.
@@ -503,6 +522,7 @@ New in this port (the original left these unfinished):
 * **The church** does something now. Karma goes down for bad deeds (stealing tags, hiring the Twins, digging up graves, in town or in a linked town) and back up by donating tags, or by a once-a-day confession for players below 50 karma. Players with good karma can ask for a daily blessing that adds luck.
 * **The graveyard** (the cemetery on the town map; the original's graveyard button was "removed until I have a use for it"). Quests that cost a turn each, up to a daily limit: dig up a grave for treasure (or a curse, the groundskeeper, or a bony hand), answer the ghost's riddle in the mausoleum, hunt the ghoul, help the gravedigger for tags. Free: tend the graves once a day for karma, read headstones (one of them is a treasure hint), and see which parlors have filled the most plots.
 * All of it is set under **Church & graveyard** in the settings, and linked towns compare these settings like the other game rules.
+* **The hospital:** hit points carry from fight to fight (at 0 you can't raid), and the hospital patches you up for gold tags, sells morgue tips for extra customers, lets you volunteer for karma, and has visiting hours for rivals who lost a fight (flowers, or unplugging something). Settings are under **Hospital**.
 * **Cash.** After operating costs and insurance, players keep a net profit of 6 to 15 percent of each funeral's bill (like real funeral homes; a sale close to the customer's limit adds 2 percent), and the bank sells tags for cash at prices the sysop sets.
 * **Levels and dynasties:** players climb from level 1 to 60 (titles every 10 levels, gold tags each level, an extra daily turn every 10), with catch-up experience for players behind the town's average and no raiding anyone more than 15 levels below you. At 60 they can retire into the Hall of Legends and carry on as their heir ("Name Jr.", "III"...) with a family heirloom. Weekly challenges, rested turns (unused turns carry over up to 3 days) and optional seasons keep it going for people who don't play every day. Settings are under **Levels**.
 * **Automatic backups:** the data folder is zipped into `data/backups` every week and before every upgrade (see Backups and upgrades).
