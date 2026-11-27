@@ -1,0 +1,158 @@
+FUNERAL QUEST 1.4.0 - HELP
+==============================================================================
+Funeral Quest by Seth A. Robinson, ported to Go. One program (fq) runs the BBS
+door, the web game, the telnet and RLogin servers and the network link between
+towns; fqedit is the full-screen sysop editor.
+
+Where to read more:
+  QUICK-INSTALL.md   up and running in ten minutes
+  README.md          the full manual
+  CHANGES.md         what's new in each version
+  docs\              the same three as web pages (open them in any browser)
+  extras\rlogin\     RLogin setups for Synchronet, Mystic and SyncTERM
+
+PROGRAMS
+------------------------------------------------------------------------------
+  Windows 64-bit   fq.exe          fqedit.exe
+  Windows 32-bit   fq32.exe        fqedit32.exe     (32-bit BBS software too)
+  Windows ARM      fq-arm64.exe    fqedit-arm64.exe
+  Linux x86-64     fq-linux        fqedit-linux
+  Linux 32-bit     fq-linux32      fqedit-linux32
+  Linux ARM64      fq-linux-arm64  fqedit-linux-arm64  (Raspberry Pi 64-bit)
+  Linux ARM        fq-linux-arm    fqedit-linux-arm    (Raspberry Pi 32-bit)
+
+FIRST STEPS
+------------------------------------------------------------------------------
+  1. fq.exe version                  check it runs
+  2. fq.exe web --port 8080           start the web game
+  3. open http://localhost:8080/sysop/ and enter the ADMIN SETUP CODE shown
+     in the fq web window (also in data\server.log and
+     data\sysop-setup-code.txt), then choose the admin password
+  4. set the town name and rules under Settings (or run fqedit.exe)
+  5. BBS door command line:  fq32.exe door %f   (Synchronet; see README)
+
+COMMANDS
+------------------------------------------------------------------------------
+Funeral Quest
+
+  fq door <DOOR32.SYS or node dir> [--stdio] [--bbs-id NAME] [--nosound]
+  fq web [--port 8080] [--host 0.0.0.0] [--cert FILE --key FILE] [--trust-proxy]
+  fq telnet [--port 2323] [--net-port 8081]      also runs the network link
+  fq net [--port 8081]                          only the network link (door-only BBSes)
+  fq rlogin [--port 1513]                       only the RLogin server (plus the network link)
+  (fq telnet also takes RLogin callers when the rlogin_port setting or --rlogin-port is set)
+
+  fq admin players | config [key=value ...] | maint | reset [--wipe] | delete <name> | news <text>
+  fq admin sysop-password [password]        turn on the web sysop pages (/sysop)
+  fq admin bans | ban <ip> [minutes] | unban <ip>
+  fq admin links | link <address:port> | accept <id> | unlink <id> | block-link <id>
+  fq admin test-link <address:port>         check the way to another town step by step
+  fq admin id                               show this server's version, network ID and fingerprint
+  fq admin use-theirs <town> [setting ...]  copy a linked town's game settings (all differing ones if none named)
+  fq admin propose                          ask every linked town to switch to this town's game settings
+  fq admin votes | vote <id> yes|no         settings votes
+  fq admin make-cert [host ...]             make a self-signed HTTPS certificate (and use it)
+  fq admin cert | https-off                 show the certificate / go back to plain HTTP
+  fq version                                show the version
+
+  The full-screen editor is the separate program fqedit.
+
+  --home DIR   folder with assets/, gamedata/, web/ and data/ (default: the exe's folder)
+
+SETTINGS
+------------------------------------------------------------------------------
+Change these on the web admin Settings tab, in fqedit (Game settings), or with
+fq.exe admin config key=value. Shown with their default values. Server
+settings apply when the program next starts; command-line switches override
+them.
+[Game]
+  server_name              = Deathville   Town name
+  turns_per_day            = 15           Turns per day
+  max_players              = 800          Maximum players
+  inactive_days            = 15           Days before closing idle parlors
+  maint_delete             = false        Delete closed parlors
+  online_timeout_minutes   = 10           Online timeout (minutes)
+  name_change_cost         = 1            Name change cost (luck)
+
+[New players]
+  starting_money           = 500          Starting money
+  starting_luck            = 50           Starting luck
+  starting_hp              = 10           Starting hit points
+  starting_strength        = 3            Starting strength
+  starting_karma           = 50           Starting karma
+  starting_rating          = 40           Starting rating
+
+[Scoring]
+  casket_sp                = 1,2,3        Casket points (wood,silver,gold)
+  plot_sp                  = 1            Plot points
+  bonus_exp                = 20           Top seller BP bonus
+  bonus_luck               = 25           Top seller luck bonus
+  trade_bonus              = 25           Trade bonus (%)
+
+[Odds]
+  risk                     = 50           Double-or-nothing risk
+  normal_odds              = 0.08         Random event odds
+  luck_odds                = 0.08         Luck event odds
+  script_odds              = 0.05         Special event odds
+  yangs_per_day            = 1            Fortune cookies per day
+  visits_per_day           = 2            Rival visits per day
+  tags_receivable_per_day  = 1            Tags received per day
+
+[Tournament]
+  tourn_active             = false        Tournament mode
+  tourn_days               = 30           Tournament length (days)
+
+[Security]
+  ban_strikes              = 5            Strikes before a ban
+  ban_minutes              = 30           First ban length (minutes)
+  ban_conn_per_minute      = 8            Connections per minute
+  ban_max_per_ip           = 3            Connections at once per address
+  sysop_allow              =              Admin pages allowed from
+
+[Server (restart to apply)]
+  web_port                 = 0            Web server port
+  web_host                 =              Web server listens on
+  web_cert                 =              HTTPS certificate file
+  web_key                  =              HTTPS key file
+  web_trust_proxy          = false        Behind my own proxy
+  telnet_port              = 0            Telnet server port
+  net_port                 = 0            Network port (without the web server)
+  sound_off                = false        No sound for callers
+
+[RLogin]
+  rlogin_port              = 0            RLogin port
+  rlogin_trusted           = *            Hosts allowed to connect
+  rlogin_secret            =              BBS gateway secret
+  rlogin_bbs_id            = bbs          BBS ID for gateway callers
+
+[Network]
+  net_public_url           =              This server's web address
+  net_auto_accept          = false        Accept link requests automatically
+  net_chat_off             = false        Turn off network chat
+  net_mail_off             = false        Turn off network mail
+  net_raids_off            = false        Turn off out-of-town raids
+  net_intro_off            = false        Don't follow introductions
+  net_share_links_off      = false        Don't introduce my links
+  net_accept_introduced    = false        Accept introduced towns automatically
+  net_vote_apply_off       = false        Don't apply settings votes
+  net_raids_per_day        = 3            Out-of-town raids per player per day
+
+FILES
+------------------------------------------------------------------------------
+  data\world.json            the whole game (back up the data folder)
+  data\server.log            web/network log     data\door.log   door log
+  data\security.log          bans, failed log-ons, admin changes
+  data\blocklist_ip.txt      blocked IPs/ranges  data\blocklist_hosts.txt
+  data\allowlist_ip.txt      never blocked (put your own address here)
+  data\tempbans.json         temporary bans
+  data\net\                  network link (identity.json = this town's key)
+  data\tls\                  self-signed HTTPS certificate, if made
+  gamedata\*.txt             game texts (edit in fqedit or the web admin)
+
+TROUBLE?
+------------------------------------------------------------------------------
+  Can't link to another town:  fq.exe admin test-link their.host:port
+  Locked yourself out:          remove your IP with  fq.exe admin unban <ip>
+                                and add it to data\allowlist_ip.txt
+  Forgot the admin password:    fq.exe admin sysop-password
+  Pictures don't show:          see "The JPEG XL check" in README.md
