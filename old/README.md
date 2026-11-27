@@ -1,6 +1,6 @@
 # Funeral Quest — BBS door + web server (Go)
 
-Version 1.8.0. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
+Version 1.8.1. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
 
 **Contents:** The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits
 
@@ -470,7 +470,7 @@ Every week (setting "Backup every", Security tab, 7 days by default) the game zi
 * List them: `fq admin backups`.
 * Restore one: stop every Funeral Quest program, unzip the backup into the `data` folder (replacing what's there), and start again.
 
-Upgrading never resets players or settings: new settings get their defaults and new player fields are filled in (for 1.8.0, every parlor gets the level its Bury Points earn, up to 40). To go back to an older version, restore the backup made before the upgrade.
+Upgrading never resets players or settings: new settings get their defaults and new player fields are filled in (from 1.8.0 on, every parlor upgraded from 1.7 or older gets the level its Bury Points earn, up to 40). To go back to an older version, restore the backup made before the upgrade.
 
 ## Building from source
 

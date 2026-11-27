@@ -2,6 +2,18 @@
 
 Releases are numbered major.minor.patch. `fq version` (or `fqedit --version`) shows which one you have, and linked towns compare versions automatically.
 
+## 1.8.2 (2026-11-27)
+
+* **Every picture checked against what's happening, and seven new ones drawn.** Each picture the game shows (sales, risks, random events, letters, the graveyard, the church, raids, fires) was compared with the text it goes with. Where nothing fit, new art was made in the game's own style, mostly from the game's own drawings:
+  * **Keying a rival's hearse** now shows that hearse with "LOSER" scratched down the side (it used to show a dog dragging a hand out of a grave).
+  * **The dust storm** event shows your parlor lost in blowing dust, tumbleweed and all (it showed the parlor on a clear day).
+  * **The graveyard** got its own cast: the **ghost of Old Mortimer** in the mausoleum, a **ghoul** with glowing eyes to hunt, **Digby the gravedigger** (who is also the groundskeeper who catches grave robbers), an **open grave** with shovel and lantern for digging, and a **sea captain's treasure chest** for the big find. The bony hand shows the skeleton, a curse shows the ghost, headstones are read by night, and tending the graves shows fresh roses.
+  * **Raising the dead gone wrong** ("You raised something all right!") shows the ghoul.
+  * **Fire letters** show the fire when the fire did damage; the smoke detector picture is kept for when the detector saved the day.
+  * Random events with no picture of their own got fitting ones: the software upgrade and the computer game at your desk, forgotten taxes with money flying off, "being watched" with the prowler, charging kids to see a body with a money bag.
+  * Retiring shows the parlor your heir is taking over.
+* If you've edited `gamedata/risks.txt` or `gamedata/events.txt`, copy your own files back after upgrading and, if you want the new pictures, change: the "key hearse" `success_url` to `flash/hearse/hearse4_keyed.swf`, the "cast spell" `fail_url` to `flash/people/ghoul.swf`, and the duststorm event's `set_pic` to `flash/places/duststorm.swf`.
+
 ## 1.8.1 (2026-11-27)
 
 * **Every screen fits the window, with nothing to scroll.** The web game no longer makes you scroll to reach the buttons or to read a message. The picture sizes itself to the window, and when a message is long the picture gets smaller to make room for it (and on short screens the side panel packs itself tighter), so the whole message and the buttons are always in view. The text box is only as big as it needs to be, with the buttons right underneath. The only things that still scroll are the ones that can't fit any other way, inside their own box: the cafe's chat log, a very long newspaper page and long ranking lists. Checked on every screen at 1280x720, 1366x768, 1120x873 and 1920x1080.

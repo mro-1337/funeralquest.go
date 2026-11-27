@@ -1,4 +1,4 @@
-FUNERAL QUEST 1.8.0 - HELP
+FUNERAL QUEST 1.8.1 - HELP
 ==============================================================================
 Funeral Quest by Seth A. Robinson, ported to Go. One program (fq) runs the BBS
 door, the web game, the telnet and RLogin servers and the network link between

@@ -1,6 +1,6 @@
 # Funeral Quest — BBS door + web server (Go)
 
-Version 1.8.1. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
+Version 1.8.2. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
 
 **Contents:** The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits
 
