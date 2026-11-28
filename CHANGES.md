@@ -2,6 +2,13 @@
 
 Releases are numbered major.minor.patch. `fq version` (or `fqedit --version`) shows which one you have, and linked towns compare versions automatically.
 
+## 1.9.1 (2026-11-27)
+
+* **Every parlor shows up in every town, even between towns that can't reach each other.** Two towns that both connect out only (behind firewalls, or door-only BBSes) couldn't see each other at all. Now a linked town that can be reached passes their messages on: it introduces them to each other (shown as **through Deathville** on the Network tab), and rankings, Rival parlors, chat, letters, news, settings votes and live raids all work between them through it. Messages stay signed by the town that wrote them, so the town in the middle can't fake or change anything. Live raids need both towns online at the time; otherwise their players are offered for a night raid as before. New setting **Don't pass on messages for other towns** (Network) for sysops who'd rather not.
+* **Door-only BBSes stay in touch.** The BBS door now checks in with linked towns when a caller comes in and when they leave, so players, chat, letters, news and night raids flow even when no `fq net`, `fq web` or `fq telnet` is running. New: `fq net --once` checks in once and exits, for a BBS timed event every 10 to 15 minutes. (When a network program is running, these check-ins step aside.)
+* **Welcome screen for BBS door, telnet and RLogin callers.** Before the game starts, callers see the same title as the web log-on page: the gold Funeral Quest logo over the graveyard with the running skeleton (as a picture on terminals that show JPEG XL or Sixel, such as SyncTERM; as ANSI art on the rest), with a box underneath showing the **version**, the town's name, how many parlors are open and who's playing, and the credits. Press any key to go on (it goes on by itself after 30 seconds).
+* **New guide: `CADDY.md`**, a simple step-by-step for running the web game behind Caddy, including the fix for a town that shows as "outbound only".
+
 ## 1.9.0 (2026-11-27)
 
 * **The web log-on no longer invites browsers to fill in saved passwords.** When the game runs in a folder of a BBS's own website, browsers and password managers offered (or filled in) the caller's saved BBS log-on, so a caller could hand their BBS password to the game without noticing. The log-on and new-player forms now ask browsers and password managers (Chrome, Safari and Keychain, Firefox, 1Password, LastPass, Bitwarden, Dashlane) not to fill them in.

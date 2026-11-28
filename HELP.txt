@@ -1,4 +1,4 @@
-FUNERAL QUEST 1.9.0 - HELP
+FUNERAL QUEST 1.9.1 - HELP
 ==============================================================================
 Funeral Quest by Seth A. Robinson, ported to Go. One program (fq) runs the BBS
 door, the web game, the telnet and RLogin servers and the network link between
@@ -42,6 +42,7 @@ Funeral Quest
   fq web [--port 8080] [--host 0.0.0.0] [--cert FILE --key FILE] [--trust-proxy]
   fq telnet [--port 2323] [--net-port 8081]      also runs the network link
   fq net [--port 8081]                          only the network link (door-only BBSes)
+  fq net --once                                 check in with linked towns once and exit (BBS timed event)
   fq rlogin [--port 1513]                       only the RLogin server (plus the network link)
   (fq telnet also takes RLogin callers when the rlogin_port setting or --rlogin-port is set)
 
@@ -174,6 +175,7 @@ them.
 [Network]
   net_public_url           =              This server's web address
   net_port_only            = false        Linked servers use the network port only
+  net_relay_off            = false        Don't pass on messages for other towns
   net_auto_accept          = false        Accept link requests automatically
   net_chat_off             = false        Turn off network chat
   net_mail_off             = false        Turn off network mail
