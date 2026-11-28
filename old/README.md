@@ -1,6 +1,6 @@
 # Funeral Quest — BBS door + web server (Go)
 
-Version 1.9.0. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
+Version 1.9.1. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
 
 **Contents:** The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits
 
@@ -220,6 +220,8 @@ The web server was written to be safe on the open internet:
 
 ### Behind Caddy (or another proxy)
 
+**Simple step-by-step guide: `CADDY.md`** (including what to do when your town shows as "outbound only").
+
 Caddy can handle HTTPS for you, with a free certificate it renews by itself, and pass requests on to `fq web`. Run `fq web` on a local port (e.g. 8080), set **Behind my own proxy** to Yes (Settings → Server) so bans hit the real caller, and use one of these Caddyfiles:
 
 **Its own (sub)domain** (`https://fq.example.com/`):
@@ -340,6 +342,10 @@ Only one program per town does the network work at a time. If you run `fq web` a
 While it's online and fetching, other towns treat it as fully linked. If its server is off, it's shown as **outbound only and not online right now**, and its players can't be visited until it's back. A town that normally can be reached but currently can't be is shown as **not reachable**.
 
 **Night raids.** When a town can't be reached right now (an outbound-only town that's offline, or a town that's down), its players still show in **Rival parlors**, marked **night raid**. A night raid is planned in one go: pick steal, fight or arson (arson is paid up front). The plan is saved and handed to that town the next time it fetches. That town runs the whole raid on its own player with its own rules, and the result (spoils, letters to both players, the news) comes back on a later fetch. If the town doesn't fetch within 3 days, the raid is called off and anything paid is refunded.
+
+**Two outbound-only towns.** They can never reach each other, so a town that can be reached passes their messages on. If Gravesend and Boneyard both connect out only and are both linked to Deathville, Deathville introduces them to each other (the Network tab shows the address as **through Deathville**), and from then on everything between them goes through Deathville: rankings and Rival parlors, chat, letters, news, settings votes and live raids. Messages stay signed by the town that wrote them, so the town in the middle can't read anything it couldn't see anyway, or fake or change anything. Live raids need both towns online at the time; otherwise the other town's players are offered for a night raid. A town that doesn't want to pass on other towns' messages can turn on **Don't pass on messages for other towns** (Settings → Network).
+
+**Door-only BBSes (nothing else running).** Without `fq net`, `fq web` or `fq telnet` running, the door itself checks in with the linked towns: when a caller comes in (in the background, while the welcome screen shows) and when they leave ("Checking in with linked towns..."). That sends and fetches players, chat, letters, news and night raids. For a town that's busy only now and then, also add a **timed event** to your BBS that runs `fq net --once` every 10 to 15 minutes (Synchronet: SCFG → External Programs → Timed Events; Mystic: Event Editor; Linux: cron). It checks in once and exits. If `fq net`, `fq web` or `fq telnet` is running, these check-ins step aside, since that program already does it.
 
 To be fully connectable without the web game, set **Network port** (`net_port`, Settings → Server) and forward it on your router. Then set **This server's web address** to `http://your.address:thatport`.
 
