@@ -2,6 +2,25 @@
 
 Releases are numbered major.minor.patch. `fq version` (or `fqedit --version`) shows which one you have, and linked towns compare versions automatically.
 
+## 1.9.2 (2026-11-27)
+
+* **E-mail addresses, forgotten passwords and notes for the sysop.**
+  * Signing up on the web or by telnet asks for an e-mail address, used only to send back a forgotten password. Players without one are asked when they play (they can skip it), and can change it under **Stats → E-mail**.
+  * **Forgot your password?** under the web log-on (or `FORGOT` at the telnet prompt) leaves the sysop a note with the logon name, how to reach the player and anything that proves the parlor is theirs.
+  * **Contact the sysop** (or `CONTACT` by telnet) sends the sysop a message with a name and e-mail address.
+  * Both sit behind a "prove you're among the living" puzzle: colored letters and numbers carved on a gravestone (big colored block letters on telnet).
+  * Notes are saved as `data/operator/<date>.operator.msg.txt`. The sysop is told on the web admin pages (Status and the new **Notes** tab) and in the window of a running `fq web`, `fq telnet` or `fq net` ("Push R and Enter to read it"); `fq admin notes` lists them.
+  * Passwords are stored scrambled, so the sysop sets a new one (Notes tab, or `fq admin password <logon> <new password>`) and e-mails it; the Notes tab's **E-mail them** button writes the e-mail out.
+  * Sysops can see and edit players' e-mail addresses.
+
+* **Update without the web server.** `fq -update` checks GitHub, downloads and installs the newest version in one go. And in the window of a running `fq net` (the shim door-only BBSes run), `fq telnet` or `fq web`, type **`update`** and press Enter: it installs the newest version and restarts itself on it (`check`, `undo`, `version` and `help` work too). The data folder is backed up first and never changed, as with the web Updates tab.
+
+* **Linked towns are never banned.** A few wrong passwords on a friend's web game banned your address there, and that also cut your game server off from their town (they're often on the same address). Now the addresses linked towns use (where their signed messages come from, and what their host names point to) are never temporarily banned, and any ban already on one is lifted within a few minutes. The block lists still apply.
+
+* **Gentler retries when a linked town is down.** A town that can't be reached was tried again every 2 minutes forever (and its chat and raid-step connections every minute). Now each failed try waits longer: 2 minutes, then 4, 8, 15, 30 and at most an hour (chat and raid-step connections: 30 seconds doubling up to 30 minutes). As soon as that town gets in touch again, it's tried right away, and **Sync now** on the Network tab always tries at once. The log says when the next try is, and when the town is reachable again.
+
+* **New guide: `UPDATE-PERMISSIONS.md`**, how to fix permission errors when updating (Linux and Windows).
+
 ## 1.9.1 (2026-11-27)
 
 * **Every parlor shows up in every town, even between towns that can't reach each other.** Two towns that both connect out only (behind firewalls, or door-only BBSes) couldn't see each other at all. Now a linked town that can be reached passes their messages on: it introduces them to each other (shown as **through Deathville** on the Network tab), and rankings, Rival parlors, chat, letters, news, settings votes and live raids all work between them through it. Messages stay signed by the town that wrote them, so the town in the middle can't fake or change anything. Live raids need both towns online at the time; otherwise their players are offered for a night raid as before. New setting **Don't pass on messages for other towns** (Network) for sysops who'd rather not.

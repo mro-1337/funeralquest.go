@@ -1,21 +1,21 @@
-# Funeral Quest 1.9.1: Quick Install
+# Funeral Quest 1.9.2: Quick Install
 
 This gets a town running in about ten minutes. The full guide is `README.md` (or `docs/Funeral-Quest-Manual.html`).
 
 ## 1. Unzip
 
-Download the zip for your system and unzip it somewhere permanent. It unpacks into a `FuneralQuest-1.9.1` folder; you can rename that, for example to `C:\doors\fq`.
+Download the zip for your system and unzip it somewhere permanent. It unpacks into a `FuneralQuest-1.9.2` folder; you can rename that, for example to `C:\doors\fq`.
 
 | System | Download | Game program | Editor |
 |---|---|---|---|
-| Windows | `FuneralQuest-1.9.1-Windows.zip` | `fq.exe` (64-bit), `fq32.exe` (32-bit), `fq-arm64.exe` | `fqedit.exe`, `fqedit32.exe`, `fqedit-arm64.exe` |
-| Linux / Raspberry Pi | `FuneralQuest-1.9.1-Linux.tar.gz` | `fq-linux`, `fq-linux32`, `fq-linux-arm64`, `fq-linux-arm` | `fqedit-linux...` |
-| macOS | build from `FuneralQuest-1.9.1-Source.zip` (`./build.sh`, needs Go 1.24+) | `fq-macos-arm` (M1 and later), `fq-macos-intel` | `fqedit-macos-...` |
-| FreeBSD / OpenBSD / NetBSD | build from `FuneralQuest-1.9.1-Source.zip` (`./build.sh`, needs Go 1.24+) | `fq-freebsd`, `fq-freebsd-arm64`, `fq-openbsd`, `fq-netbsd` | `fqedit-...` |
+| Windows | `FuneralQuest-1.9.2-Windows.zip` | `fq.exe` (64-bit), `fq32.exe` (32-bit), `fq-arm64.exe` | `fqedit.exe`, `fqedit32.exe`, `fqedit-arm64.exe` |
+| Linux / Raspberry Pi | `FuneralQuest-1.9.2-Linux.tar.gz` | `fq-linux`, `fq-linux32`, `fq-linux-arm64`, `fq-linux-arm` | `fqedit-linux...` |
+| macOS | build from `FuneralQuest-1.9.2-Source.zip` (`./build.sh`, needs Go 1.24+) | `fq-macos-arm` (M1 and later), `fq-macos-intel` | `fqedit-macos-...` |
+| FreeBSD / OpenBSD / NetBSD | build from `FuneralQuest-1.9.2-Source.zip` (`./build.sh`, needs Go 1.24+) | `fq-freebsd`, `fq-freebsd-arm64`, `fq-openbsd`, `fq-netbsd` | `fqedit-...` |
 
 For example, unzip to `C:\doors\fq` or `/opt/fq`. Keep the folders (`assets`, `gamedata`, `web`) next to the programs. The `data` folder is created on the first run and holds the whole game.
 
-**Linux:** unpack with `tar -xzf FuneralQuest-1.9.1-Linux.tar.gz` (the programs are already runnable).
+**Linux:** unpack with `tar -xzf FuneralQuest-1.9.2-Linux.tar.gz` (the programs are already runnable).
 **macOS / BSD (built from source):** make the programs runnable: `chmod +x fq-* fqedit-*`
 **macOS:** the programs aren't signed by Apple, so the first time run: `xattr -d com.apple.quarantine fq-macos-* fqedit-macos-*`
 
@@ -97,11 +97,11 @@ Linked towns share real-time Cafe chat, rankings, letters and raids. They also c
 
 ## Upgrading from an older version
 
-From 1.9.0 on, the easy way is the web admin pages: the **Updates** tab installs a new release with one click (or run `fq update`). It backs up your data, keeps edited game texts and can go back. See "Updating from the web admin pages" in the manual. By hand:
+From 1.9.0 on, the easy way is the web admin pages: the **Updates** tab installs a new release with one click. Without the web server, run `fq -update`, or type `update` in the window of a running `fq net`. If an update complains about permissions, see `UPDATE-PERMISSIONS.md`. It backs up your data, keeps edited game texts and can go back. See "Updating from the web admin pages" in the manual. By hand:
 
 1. Stop `fq web` / `fq telnet` / `fq net` (and make sure nobody is in the door).
 2. **Back up the `data` folder.** It holds the whole game. (From 1.8.0 on, the game also saves its own backup in `data/backups` before changing anything, but a copy of your own never hurts.)
-3. Unzip the new version somewhere, then copy everything inside its `FuneralQuest-1.9.1` folder into your existing Funeral Quest folder, replacing the old files. Your `data` folder isn't in the zip, so it's kept. The `gamedata` text files are replaced: if you edited texts, copy your own `gamedata` back, or redo the changes in the editor.
+3. Unzip the new version somewhere, then copy everything inside its `FuneralQuest-1.9.2` folder into your existing Funeral Quest folder, replacing the old files. Your `data` folder isn't in the zip, so it's kept. The `gamedata` text files are replaced: if you edited texts, copy your own `gamedata` back, or redo the changes in the editor.
 4. Start the programs again. New settings get sensible defaults, and your players and settings are kept. Upgrading from 1.7 or older: every parlor gets the level its Bury Points earn (up to 40), and a backup of your old data is saved as `data/backups/fq-before-upgrade-<version>-<date>.zip`.
 
 ## Help

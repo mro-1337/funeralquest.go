@@ -1,6 +1,6 @@
 # Funeral Quest — BBS door + web server (Go)
 
-Version 1.9.1. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
+Version 1.9.2. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
 
 **Contents:** The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits
 
@@ -164,6 +164,16 @@ BBS players can also play in a browser: in the door, open **Stats → Web login*
 
 Browsers with native JPEG XL (Safari) show the art directly. For other browsers the page includes a small libjxl WebAssembly decoder, so the art is still JPEG XL.
 
+### E-mail addresses, forgotten passwords and notes for the sysop
+
+* **Sign-up asks for an e-mail address** (web and telnet), only so a forgotten password can be sent back. Players who signed up before (and BBS players who set a web logon) are asked once each time they play until they give one; they can skip it. They can change it under **Stats → E-mail**. Door players who only play through the BBS are never asked.
+* **Forgot your password?** (under the web log-on, or type `FORGOT` at the telnet logon prompt) lets a player leave the sysop a note: their logon name, how to reach them, and anything that proves the parlor is theirs.
+* **Contact the sysop** (the link under the web log-on, or `CONTACT` at the telnet prompt) takes a name, an e-mail address and a message.
+* Both are behind a **"prove you're among the living"** puzzle: letters and numbers in different colors carved on a gravestone (on telnet, big colored block letters). Each puzzle works once; wrong answers count toward a temporary ban, and one address can leave at most 4 notes an hour.
+* **Every note is saved as a text file** in `data/operator`, named after when it arrived: `2026-11-27_21-35-01.operator.msg.txt`.
+* **You're told about new notes:** the web admin pages show them on the Status tab and in the new **Notes** tab, and the window of a running `fq web`, `fq telnet` or `fq net` prints `*** New note for the operator ... Push R and Enter to read it.` Typing `r` and Enter shows the new notes. `fq admin notes` lists them all.
+* **Answering a forgotten password:** passwords are stored scrambled, so nobody (the sysop included) can look one up. Set a new one, then e-mail it to the player. On the **Notes** tab: type the new password, **Set new password**, then **E-mail them** opens your mail program with the message written out. From the command line: `fq admin password <logon> <new password>`. A forgotten-password note shows which parlor the logon name belongs to and the e-mail address on file, so you can check the request is genuine before answering. (The person asking is never told whether the logon name exists.)
+
 ## The sysop editor: fqedit
 
 `fqedit.exe` is the editor program, like the old server's menus. Run it in the Funeral Quest folder, or use `fqedit.exe --home C:\doors\fq`. It's full screen in a console window (Windows 10 or later, or any Linux terminal). Use the arrow keys, Enter to change something, and Esc to go back.
@@ -281,6 +291,8 @@ These files are in the `data` folder. Each one is created with instructions the 
 | `blocklist_hosts.txt` | Host names, with `*` wildcards: `*.badisp.example`. Matched against the caller's reverse DNS; plain names are also looked up to their IPs |
 | `allowlist_ip.txt` | Never blocked or banned. Your own address and LAN belong here so you can't lock yourself out (127.0.0.1 is there already) |
 | `tempbans.json` | Temporary bans, shared by the telnet server, the web server and every door node |
+
+**Linked towns are never banned.** The addresses your linked towns use (where their signed messages come from, and what their addresses' host names point to) are never temporarily banned, and a ban already on one is lifted within a few minutes. So if a sysop mistypes their password on a friend's game, the two towns stay connected. The block lists still apply: blocking an address there is your own choice.
 
 Blocked callers are refused by the telnet server, the web game, the sysop pages and the network link.
 
@@ -491,8 +503,12 @@ From 1.9.0 on, the game can update itself from the project's [Releases page on G
   3. keeps a copy of every file it replaces (in `data/update`), then puts the new version in place. The `data` folder is never touched. A `gamedata` text you've edited (in the Game texts tab or by hand) is left alone, and the new one is saved beside it as `.new` to compare;
   4. restarts the web server on the new version. Web players have to log on again. BBS door callers get the new version on their next call. Other running copies (`fq telnet`, `fq rlogin`) restart once nobody is online; `fq net` restarts right away.
 * **Go back to the previous version** puts the old files back and restarts. The data folder isn't changed; if the newer version changed it and you want it back too, restore the before-update backup.
-* Without the web server: `fq update --check` says whether there's a newer version, `fq update` installs it (it asks first; `--yes` doesn't), and `fq update undo` goes back.
+* Without the web server:
+  * `fq -update` checks GitHub, downloads and installs the newest version in one go (no questions).
+  * In the window of a running `fq net` (the usual shim for door-only BBSes), `fq telnet` or `fq web`, type **`update`** and press Enter: it installs the newest version and restarts itself on it. `check` only looks, `undo` goes back to the previous version, `help` lists the commands.
+  * `fq update --check` says whether there's a newer version, `fq update` installs it after asking, and `fq update undo` goes back.
 * Settings, **Updates** group: **Don't check for updates**; **Get updates from** (another GitHub project, `owner/name`); **My service manager restarts it**: if fq runs under NSSM, as a Windows service or under systemd, turn this on and fq exits with code 3 after an update instead of restarting itself, so the service manager starts the new version. (On Linux, restarting itself keeps the same process, so systemd is fine either way.)
+* **Permission errors when updating** (usually on Linux, when the game was installed as root but runs as the BBS user): see **`UPDATE-PERMISSIONS.md`** for the one-line fix.
 * Ready-made updates are for the Windows and Linux programs. On macOS or BSD, build the new version from the source package.
 
 **For whoever publishes releases:** the updater looks at the newest release on the Releases page (not files committed to the code). Each release needs a tag that's the version number with a `v` (`v1.9.1`), and the packages attached with their usual names: `FuneralQuest-1.9.1-Windows.zip` and `FuneralQuest-1.9.1-Linux.tar.gz` (and the source zip).
