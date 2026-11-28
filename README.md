@@ -1,3 +1,12 @@
+hey guys.  these docs are intimidating.
+
+run it.  login via web.  set it up.  add a existing server to link up.   that's it. 
+there's more than one way to do things.  it's quick and easy. 
+
+you can run it as a web program AND a bbs doorgame.  or just a bbs doorgame. or a telnet or rlogin server.   you pick.
+
+
+
 # Funeral Quest — BBS door + web server (Go)
 
 Version 1.9.5. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
