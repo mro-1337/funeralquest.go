@@ -1,4 +1,4 @@
-FUNERAL QUEST 1.9.3 - HELP
+FUNERAL QUEST 1.9.5 - HELP
 ==============================================================================
 Funeral Quest by Seth A. Robinson, ported to Go. One program (fq) runs the BBS
 door, the web game, the telnet and RLogin servers and the network link between
@@ -155,12 +155,14 @@ them.
 [Updates]
   update_check_off         = false        Don't check for updates
   update_auto              = false        Install updates automatically
+  update_check_hours       = 0            Check for updates every (hours)
   update_repo              =              Get updates from
   update_exit_only         = false        My service manager restarts it
 
 [Security]
   web_hide_admin_link      = false        Hide the Admin link
-  sysop_captcha            = false        Puzzle with the admin password
+  sysop_captcha_off        = false        No puzzle with the admin password
+  signup_captcha_off       = false        No puzzle for new parlors
   ban_strikes              = 5            Strikes before a ban
   ban_minutes              = 30           First ban length (minutes)
   ban_conn_per_minute      = 8            Connections per minute

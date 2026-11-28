@@ -2,6 +2,27 @@
 
 Releases are numbered major.minor.patch. `fq version` (or `fqedit --version`) shows which one you have, and linked towns compare versions automatically.
 
+## 1.9.5 (2026-11-28)
+
+* **Networked towns all give new players the same start.** Starting money, luck, hit points, strength, karma and rating must match across linked towns: the defaults, unless a settings vote changed them. A town whose sysop changes one by hand stops playing with linked towns (no shared rankings, raids, chat or letters; votes still go through) until it's put back, and the other towns refuse it too. The Settings tab warns before saving such a change, and the Status tab has **Put back the network's settings**.
+* **New towns pick up the network's voted values.** A town linking to a network for the first time switches to the new-player settings its towns voted, and its sysop gets a Mailbox note saying what changed. Towns that don't match aren't allowed to network at all: no syncs, live chat, raids, letters or rankings.
+* **Settings votes pass at once when every town agrees.** Otherwise they're decided after 7 days by majority (before, a majority passed them as soon as it was reached). When a vote passes, every town switches by itself; the new-player settings switch even in towns that turned on "Don't apply settings votes".
+* **Gravestone puzzle on by default for the admin log-on**, and **new: for opening a parlor** on the web and by telnet, so bots can't make accounts. Turn them off on the Security tab (**No puzzle with the admin password**, **No puzzle for new parlors**). BBS door callers never get the sign-up puzzle.
+
+* **Security settings are on the Security tab.** The admin log-on options, ban rules, admin address limits, "Behind my own proxy" and the RLogin access settings moved from the Settings tab to a **Security settings** box on the Security tab; the HTTPS certificate files are with the HTTPS certificate there, and the backup settings are with the Backups on the News & maintenance tab.
+* **Checks for updates every hour** instead of once a day (every 6 hours with automatic updates). Sysops can change it: **Check for updates every (hours)** on the Updates tab, from 1 to 168 (a week).
+
+## 1.9.4 (2026-11-28)
+
+* **Bertram the bartender.** The Pale Horse Cafe has **Talk to Bertram** (he tells funny stories, and now and then a useful tip) and **Buy a drink**, three drinks with random effects, good or bad (luck, turns, hit points, karma, cash, bury points, strength):
+  * **The Embalmer's Elbow** ($150): mild.
+  * **Grave Digger's Fizz** ($600): stronger.
+  * **The Dearly Departed** (1 gold tag): nobody knows what's in it, and it hits hardest either way.
+  Bertram pours up to 3 drinks a day. In the BBS door, type `/bar` or `/drink` in the cafe.
+* **Edit reports keep secrets.** A password a sysop sets is never written in the report linked towns get (it only says "password: set to a new one"), and a changed e-mail address only says "changed".
+* **All the update settings are on the Updates tab now.** **Install updates automatically** is a switch at the top, and the others (don't check for updates, where updates come from, let the service manager restart) are at the bottom. They're no longer on the Settings tab (fqedit and `fq admin config` still have them).
+* **The cafe is easier to read on the web.** The town a line came from (a linked town) now shows as a black-on-brown tag, and the dim gray text (times, notices) is a light tan on the brown text box.
+
 ## 1.9.3 (2026-11-28)
 
 * **Graveyard quests don't cost turns any more.** Digging, the mausoleum, the ghoul and helping the gravedigger only count against the daily graveyard limit ("Quests left today"), so players who spent their turns waiting for customers can still visit the graveyard. Before, "Quests left today: 4" could sit next to "You're too tired for any more graveyard business today."
@@ -11,8 +32,8 @@ Releases are numbered major.minor.patch. `fq version` (or `fqedit --version`) sh
 
 * **Edit reports and messages between sysops of linked towns.** When a sysop changes a player by hand (web admin pages, fqedit or `fq admin`), every linked town's sysop gets a **Player edited** note: when, which player, what changed, which town and with what. Sysops can write to one linked town's sysop or to all of them from the web admin pages, and reply to messages. It all arrives in the **Mailbox** tab (formerly Notes), which also has the forgotten-password and Contact notes.
 
-* **Hide the Admin link** (Settings → Security): the web log-on page no longer shows it; the sysop pages still work at `/sysop`.
-* **Puzzle with the admin password** (Settings → Security): logging on to the sysop pages also asks for the letters on a "prove you're among the living" gravestone, which slows down password-guessing programs.
+* **Hide the Admin link** (Security tab): the web log-on page no longer shows it; the sysop pages still work at `/sysop`.
+* **Puzzle with the admin password** (Security tab): logging on to the sysop pages also asks for the letters on a "prove you're among the living" gravestone, which slows down password-guessing programs.
 
 ## 1.9.2 (2026-11-27)
 

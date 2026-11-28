@@ -1,6 +1,6 @@
 # Funeral Quest — BBS door + web server (Go)
 
-Version 1.9.3. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
+Version 1.9.5. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
 
 **Contents:** The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits
 
@@ -232,7 +232,7 @@ The web server was written to be safe on the open internet:
 
 **Simple step-by-step guide: `CADDY.md`** (including what to do when your town shows as "outbound only").
 
-Caddy can handle HTTPS for you, with a free certificate it renews by itself, and pass requests on to `fq web`. Run `fq web` on a local port (e.g. 8080), set **Behind my own proxy** to Yes (Settings → Server) so bans hit the real caller, and use one of these Caddyfiles:
+Caddy can handle HTTPS for you, with a free certificate it renews by itself, and pass requests on to `fq web`. Run `fq web` on a local port (e.g. 8080), set **Behind my own proxy** to Yes (Security tab → Security settings) so bans hit the real caller, and use one of these Caddyfiles:
 
 **Its own (sub)domain** (`https://fq.example.com/`):
 ```
@@ -292,7 +292,9 @@ These files are in the `data` folder. Each one is created with instructions the 
 | `allowlist_ip.txt` | Never blocked or banned. Your own address and LAN belong here so you can't lock yourself out (127.0.0.1 is there already) |
 | `tempbans.json` | Temporary bans, shared by the telnet server, the web server and every door node |
 
-**Hiding the sysop pages a little.** Settings → Security → **Hide the Admin link** takes the Admin link off the web log-on page (the pages still work at `/sysop`), and **Puzzle with the admin password** adds a gravestone puzzle to the sysop log-on.
+**Gravestone puzzles.** The sysop log-on and opening a new parlor (on the web and by telnet) ask for the letters on a "prove you're among the living" gravestone, so password-guessing programs and account-making bots get nowhere. Both are on unless you turn them off: Security tab → **No puzzle with the admin password** / **No puzzle for new parlors**. BBS door callers never see the sign-up puzzle (the BBS signed them up already). Forgot-your-password and contact notes always have it.
+
+**Hiding the sysop pages a little.** Security tab → **Hide the Admin link** takes the Admin link off the web log-on page (the pages still work at `/sysop`).
 
 **Linked towns are never banned.** The addresses your linked towns use (where their signed messages come from, and what their addresses' host names point to) are never temporarily banned, and a ban already on one is lifted within a few minutes. So if a sysop mistypes their password on a friend's game, the two towns stay connected. The block lists still apply: blocking an address there is your own choice.
 
@@ -305,7 +307,7 @@ Blocked callers are refused by the telnet server, the web game, the sysop pages 
 * more than 8 new telnet connections in a minute (instant ban), or more than 3 at once
 * a forged or replayed network message, or flooding the web server
 
-Telnet callers also have 3 minutes to log on before they're disconnected. You can change the limits under Settings → Security. See and lift bans in fqedit, on the sysop pages, or with:
+Telnet callers also have 3 minutes to log on before they're disconnected. You can change the limits on the Security tab (Security settings). See and lift bans in fqedit, on the sysop pages, or with:
 
 ```
 fq.exe admin bans
@@ -402,6 +404,8 @@ You only ever type in one address. The Network tab lists introduced towns that a
 Every handshake carries the game version and the town's game rules: turns per day, starting stats, scoring, odds, daily limits, tournament mode and out-of-town raids per day. Town name, security and housekeeping settings stay private and aren't compared.
 
 * **Versions**: if a linked town runs an older version, both sysops are told which town needs to update. A town from before 1.3.0 doesn't send its version and is reported as needing to update.
+* **New-player settings must match.** Starting money, luck, hit points, strength, karma and rating have to be the same in every linked town, so no town can hand its players a head start. They're the game's defaults unless a settings vote changed them. A town whose sysop changes one by hand **stops playing with linked towns**: no shared rankings, raids, chat or letters (only votes still go through) until it's put back. The other towns refuse it too. The sysop pages warn before saving such a change, the Status tab shows **Not playing with linked towns** with a **Put back the network's settings** button, and `server.log` says so every 10 minutes. Towns whose settings don't match aren't allowed to network: no syncs, live chat, raids, letters or rankings between them, wherever the request comes from (directly, through a hub or fetched). A town with no links can use any values it likes.
+* **New towns pick up the network's values.** A town that has never played with a linked town, linking to a network whose towns voted different new-player settings, switches to the voted values by itself, and its sysop gets a note in the Mailbox (and the console's "Push R") listing what changed. After that first time, nothing but a vote changes them.
 * **Settings**: each sysop sees which settings differ, with "here" and "there" values. Look on the sysop Status and Network tabs, in fqedit → Network links (towns marked NEEDS ATTENTION), with `fq admin links`, and in `server.log`. Copy the other town's values one at a time or all at once ("Use theirs", or `fq admin use-theirs Gravesend`), or agree with the other sysop on new ones.
 
 ### Settings votes
@@ -410,10 +414,10 @@ To get every linked town on the same rules, **propose** yours. Use the sysop pag
 
 1. Every town you're linked to gets the proposal. Its sysop is asked to **accept the settings from your town**, and sees a table of what would change for them.
 2. Each sysop answers **Accept** or **Decline** (web, fqedit, or `fq admin votes` then `fq admin vote <id> yes`). They can change their answer until the vote ends.
-3. When **more than half of all the towns in the vote** have accepted (the proposing town counts as a yes), the vote passes. Every town in it switches to the proposed settings, including towns that declined. A town whose sysop turned on **Don't apply settings votes** (`net_vote_apply_off`) stays as it is. With just two towns, the other town has to accept.
-4. If enough towns decline that it can't pass, it fails. Votes also end after 7 days.
+3. When **every town in the vote** has accepted (the proposing town counts as a yes), the vote passes right away. Otherwise it's decided after **7 days**: it passes if more than half of all the towns accepted, and ends without a change if not. Every town in a passed vote switches to the proposed settings by itself, including towns that declined. A town whose sysop turned on **Don't apply settings votes** (`net_vote_apply_off`) keeps its other settings, but always switches the new-player settings, which every linked town has to share. With just two towns, the other town has to accept.
+4. If enough towns decline that it can't pass, it fails early.
 
-Each town signs its vote with its own key. A town only applies a passed vote after checking the signed votes itself, so the proposing town can't fake a result. Only the game settings listed above can be changed by a vote. A new proposal from the same town replaces its open one.
+Each town signs its vote with its own key. A town only applies a passed vote after checking the signed votes itself (all yes, or a majority once the 7 days are up), so the proposing town can't fake a result or end a vote early. Only the game settings listed above can be changed by a vote. A new proposal from the same town replaces its open one.
 
 Each server has its own key. Its **fingerprint** (like `3DDF-B131-5126-B736`) is shown in the editor; compare fingerprints with the other sysop by email or phone if you want to be sure who you're linking to.
 
@@ -500,7 +504,7 @@ Funeral Quest is light: it typically needs 30–60 MB of memory and very little 
 * **No live chat connections:** normally one connection per linked town stays open so their chat appears in the cafe at once. Turned on, chat from other towns arrives with each sync instead, and those connections (and their memory) go away.
 * **Memory limit (MB):** for example 64 or 128 on a tiny VPS. fq tidies up its memory sooner to stay near it (a little more CPU, less RAM). Takes effect when fq starts.
 
-Other settings that help: **AI players** (Settings → AI players: fewer or 0), **Don't pass on messages for other towns** (Network) if your town is a hub for many outbound-only towns, and keeping fewer weekly backups (Security).
+Other settings that help: **AI players** (Settings → AI players: fewer or 0), **Don't pass on messages for other towns** (Network) if your town is a hub for many outbound-only towns, and keeping fewer weekly backups (News & maintenance tab → Backups).
 
 ## Backups and upgrades
 
@@ -516,7 +520,7 @@ Upgrading never resets players or settings: new settings get their defaults and 
 
 From 1.9.0 on, the game can update itself from the project's [Releases page on GitHub](https://github.com/mro-1337/funeralquest.go/releases).
 
-* Once a day, `fq web` (and `fq telnet`, `fq net`, `fq rlogin`) asks GitHub whether there's a newer release. When there is, the web admin **Status** tab says so, and the log says so too.
+* Every hour (or as often as **Check for updates every (hours)** on the Updates tab says), `fq web` (and `fq telnet`, `fq net`, `fq rlogin`) asks GitHub whether there's a newer release. When there is, the web admin **Status** tab says so, and the log says so too.
 * The **Updates** tab shows the installed version, the newest release and what's new in it. **Install** does the rest:
   1. downloads the Windows or Linux package and checks it isn't damaged;
   2. backs up the data folder (`data/backups/fq-before-update-<version>-<date>.zip`, never deleted);
@@ -527,8 +531,8 @@ From 1.9.0 on, the game can update itself from the project's [Releases page on G
   * `fq -update` checks GitHub, downloads and installs the newest version in one go (no questions).
   * In the window of a running `fq net` (the usual shim for door-only BBSes), `fq telnet` or `fq web`, type **`update`** and press Enter: it installs the newest version and restarts itself on it. `check` only looks, `undo` goes back to the previous version, `help` lists the commands.
   * `fq update --check` says whether there's a newer version, `fq update` installs it after asking, and `fq update undo` goes back.
-* Settings, **Updates** group: **Don't check for updates**; **Get updates from** (another GitHub project, `owner/name`); **My service manager restarts it**: if fq runs under NSSM, as a Windows service or under systemd, turn this on and fq exits with code 3 after an update instead of restarting itself, so the service manager starts the new version. (On Linux, restarting itself keeps the same process, so systemd is fine either way.)
-* **Automatic updates (off unless you turn them on):** Settings → Updates → **Install updates automatically**. fq then looks for a new version every 6 hours, downloads it right away (even while people are playing), and installs it once nobody has been playing for a minute, then restarts on it. Only one running copy of fq does the installing; the others restart onto the new version once nobody is online. The data folder is backed up first and the Updates tab's **Go back** works as usual.
+* **Update settings** (at the bottom of the Updates tab; also in fqedit and `fq admin config`): **Don't check for updates**; **Get updates from** (another GitHub project, `owner/name`); **My service manager restarts it**: if fq runs under NSSM, as a Windows service or under systemd, turn this on and fq exits with code 3 after an update instead of restarting itself, so the service manager starts the new version. (On Linux, restarting itself keeps the same process, so systemd is fine either way.)
+* **Automatic updates (off unless you turn them on):** tick **Install updates automatically** at the top of the Updates tab. fq then downloads a new version as soon as it finds one (it checks every hour, or as often as **Check for updates every (hours)** says) (even while people are playing), and installs it once nobody has been playing for a minute, then restarts on it. Only one running copy of fq does the installing; the others restart onto the new version once nobody is online. The data folder is backed up first and the Updates tab's **Go back** works as usual.
 * **Permission errors when updating** (usually on Linux, when the game was installed as root but runs as the BBS user): see **`UPDATE-PERMISSIONS.md`** for the one-line fix.
 * Ready-made updates are for the Windows and Linux programs. On macOS or BSD, build the new version from the source package.
 
@@ -563,6 +567,7 @@ Everything from the original server and its scripts:
 New in this port (the original left these unfinished):
 
 * **The church** does something now. Karma goes down for bad deeds (stealing tags, hiring the Twins, digging up graves, in town or in a linked town) and back up by donating tags, or by a once-a-day confession for players below 50 karma. Players with good karma can ask for a daily blessing that adds luck.
+* **Bertram's bar** in the Pale Horse Cafe: funny stories, and three drinks with random good or bad effects (up to 3 a day).
 * **The graveyard** (the cemetery on the town map; the original's graveyard button was "removed until I have a use for it"). Quests up to a daily limit (they don't cost turns): dig up a grave for treasure (or a curse, the groundskeeper, or a bony hand), answer the ghost's riddle in the mausoleum, hunt the ghoul, help the gravedigger for tags. Free: tend the graves once a day for karma, read headstones (one of them is a treasure hint), and see which parlors have filled the most plots.
 * All of it is set under **Church & graveyard** in the settings, and linked towns compare these settings like the other game rules.
 * **The hospital:** hit points carry from fight to fight (at 0 you can't raid), and the hospital patches you up for gold tags, sells morgue tips for extra customers, lets you volunteer for karma, and has visiting hours for rivals who lost a fight (flowers, or unplugging something). Settings are under **Hospital**.

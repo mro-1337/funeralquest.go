@@ -2,6 +2,18 @@
 
 Releases are numbered major.minor.patch. `fq version` (or `fqedit --version`) shows which one you have, and linked towns compare versions automatically.
 
+## 1.9.3 (2026-11-28)
+
+* **Graveyard quests don't cost turns any more.** Digging, the mausoleum, the ghoul and helping the gravedigger only count against the daily graveyard limit ("Quests left today"), so players who spent their turns waiting for customers can still visit the graveyard. Before, "Quests left today: 4" could sit next to "You're too tired for any more graveyard business today."
+
+* **Automatic updates (off by default).** Settings → Updates → **Install updates automatically**: fq checks every 6 hours, downloads a new version right away (even while people play), and installs it once nobody has been playing for a minute, then restarts on it. Data is backed up first and **Go back** still works. The Updates tab says whether it's on and what it's waiting for.
+* **Settings for small servers** (new group **Performance**): how often to sync with linked towns, turning off the always-open live chat connections, and a memory limit. Also, for everyone: the game no longer rewrites its data file when nothing changed (most looks at the game), which saves a lot of disk writes on SD cards and slow disks. See "Running on a small server" in the manual.
+
+* **Edit reports and messages between sysops of linked towns.** When a sysop changes a player by hand (web admin pages, fqedit or `fq admin`), every linked town's sysop gets a **Player edited** note: when, which player, what changed, which town and with what. Sysops can write to one linked town's sysop or to all of them from the web admin pages, and reply to messages. It all arrives in the **Mailbox** tab (formerly Notes), which also has the forgotten-password and Contact notes.
+
+* **Hide the Admin link** (Settings → Security): the web log-on page no longer shows it; the sysop pages still work at `/sysop`.
+* **Puzzle with the admin password** (Settings → Security): logging on to the sysop pages also asks for the letters on a "prove you're among the living" gravestone, which slows down password-guessing programs.
+
 ## 1.9.2 (2026-11-27)
 
 * **E-mail addresses, forgotten passwords and notes for the sysop.**
@@ -9,8 +21,8 @@ Releases are numbered major.minor.patch. `fq version` (or `fqedit --version`) sh
   * **Forgot your password?** under the web log-on (or `FORGOT` at the telnet prompt) leaves the sysop a note with the logon name, how to reach the player and anything that proves the parlor is theirs.
   * **Contact the sysop** (or `CONTACT` by telnet) sends the sysop a message with a name and e-mail address.
   * Both sit behind a "prove you're among the living" puzzle: colored letters and numbers carved on a gravestone (big colored block letters on telnet).
-  * Notes are saved as `data/operator/<date>.operator.msg.txt`. The sysop is told on the web admin pages (Status and the new **Notes** tab) and in the window of a running `fq web`, `fq telnet` or `fq net` ("Push R and Enter to read it"); `fq admin notes` lists them.
-  * Passwords are stored scrambled, so the sysop sets a new one (Notes tab, or `fq admin password <logon> <new password>`) and e-mails it; the Notes tab's **E-mail them** button writes the e-mail out.
+  * Notes are saved as `data/operator/<date>.operator.msg.txt`. The sysop is told on the web admin pages (Status and the new **Mailbox** tab) and in the window of a running `fq web`, `fq telnet` or `fq net` ("Push R and Enter to read it"); `fq admin notes` lists them.
+  * Passwords are stored scrambled, so the sysop sets a new one (Mailbox tab, or `fq admin password <logon> <new password>`) and e-mails it; the Mailbox tab's **E-mail them** button writes the e-mail out.
   * Sysops can see and edit players' e-mail addresses.
 
 * **Update without the web server.** `fq -update` checks GitHub, downloads and installs the newest version in one go. And in the window of a running `fq net` (the shim door-only BBSes run), `fq telnet` or `fq web`, type **`update`** and press Enter: it installs the newest version and restarts itself on it (`check`, `undo`, `version` and `help` work too). The data folder is backed up first and never changed, as with the web Updates tab.

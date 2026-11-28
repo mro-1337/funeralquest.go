@@ -1,6 +1,6 @@
 # Funeral Quest — BBS door + web server (Go)
 
-Version 1.9.2. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
+Version 1.9.3. **New here? Start with `QUICK-INSTALL.md`.** `HELP.txt` lists every command and setting. See `CHANGES.md` for what's new; `fq version` shows the version you're running. The same guides are in `docs/` as web pages you can open in any browser.
 
 **Contents:** The JPEG XL check · Sound · Install (Synchronet, Mystic, other BBSes, RLogin) · Web server · The sysop editor (fqedit) · Web admin pages · Security (HTTPS, block lists and bans) · Linking towns together (without the web server, versions and settings, settings votes, raids) · Sysop commands · Building from source · Credits
 
@@ -171,8 +171,8 @@ Browsers with native JPEG XL (Safari) show the art directly. For other browsers 
 * **Contact the sysop** (the link under the web log-on, or `CONTACT` at the telnet prompt) takes a name, an e-mail address and a message.
 * Both are behind a **"prove you're among the living"** puzzle: letters and numbers in different colors carved on a gravestone (on telnet, big colored block letters). Each puzzle works once; wrong answers count toward a temporary ban, and one address can leave at most 4 notes an hour.
 * **Every note is saved as a text file** in `data/operator`, named after when it arrived: `2026-11-27_21-35-01.operator.msg.txt`.
-* **You're told about new notes:** the web admin pages show them on the Status tab and in the new **Notes** tab, and the window of a running `fq web`, `fq telnet` or `fq net` prints `*** New note for the operator ... Push R and Enter to read it.` Typing `r` and Enter shows the new notes. `fq admin notes` lists them all.
-* **Answering a forgotten password:** passwords are stored scrambled, so nobody (the sysop included) can look one up. Set a new one, then e-mail it to the player. On the **Notes** tab: type the new password, **Set new password**, then **E-mail them** opens your mail program with the message written out. From the command line: `fq admin password <logon> <new password>`. A forgotten-password note shows which parlor the logon name belongs to and the e-mail address on file, so you can check the request is genuine before answering. (The person asking is never told whether the logon name exists.)
+* **You're told about new notes:** the web admin pages show them on the Status tab and in the new **Mailbox** tab, and the window of a running `fq web`, `fq telnet` or `fq net` prints `*** New note for the operator ... Push R and Enter to read it.` Typing `r` and Enter shows the new notes. `fq admin notes` lists them all.
+* **Answering a forgotten password:** passwords are stored scrambled, so nobody (the sysop included) can look one up. Set a new one, then e-mail it to the player. On the **Mailbox** tab: type the new password, **Set new password**, then **E-mail them** opens your mail program with the message written out. From the command line: `fq admin password <logon> <new password>`. A forgotten-password note shows which parlor the logon name belongs to and the e-mail address on file, so you can check the request is genuine before answering. (The person asking is never told whether the logon name exists.)
 
 ## The sysop editor: fqedit
 
@@ -291,6 +291,8 @@ These files are in the `data` folder. Each one is created with instructions the 
 | `blocklist_hosts.txt` | Host names, with `*` wildcards: `*.badisp.example`. Matched against the caller's reverse DNS; plain names are also looked up to their IPs |
 | `allowlist_ip.txt` | Never blocked or banned. Your own address and LAN belong here so you can't lock yourself out (127.0.0.1 is there already) |
 | `tempbans.json` | Temporary bans, shared by the telnet server, the web server and every door node |
+
+**Hiding the sysop pages a little.** Settings → Security → **Hide the Admin link** takes the Admin link off the web log-on page (the pages still work at `/sysop`), and **Puzzle with the admin password** adds a gravestone puzzle to the sysop log-on.
 
 **Linked towns are never banned.** The addresses your linked towns use (where their signed messages come from, and what their addresses' host names point to) are never temporarily banned, and a ban already on one is lifted within a few minutes. So if a sysop mistypes their password on a friend's game, the two towns stay connected. The block lists still apply: blocking an address there is your own choice.
 
@@ -424,6 +426,14 @@ Each server has its own key. Its **fingerprint** (like `3DDF-B131-5126-B736`) is
 * Link requests need your OK unless you turn on **Accept requests automatically**. If a server you already know shows up with a different key, it's flagged **KEY CHANGED** and isn't trusted until you accept it.
 * You can **Block** or **Remove** a server at any time. Removing it deletes its players and any letters waiting to go to it.
 
+### Sysops of linked towns: edit reports and messages
+
+The people who run linked towns can keep an eye on each other and talk:
+
+* **Player edits are reported.** Whenever a sysop changes a player by hand (on the web admin pages, in fqedit or with `fq admin`: their points, money, tags, password, or deleting them), every linked town's sysop gets a **Player edited** note in their **Mailbox** (web admin pages): when it happened, which player, what changed from what to what, which town did it and with what program. So nobody can quietly boost their own parlor in the shared rankings. Your own edits are kept in your Mailbox too, already read.
+* **Write to another sysop.** The Mailbox tab has a **Write to another sysop** form: pick one linked town or all of them. Messages from other sysops arrive in your Mailbox with a **Reply** button.
+* These notes travel with the regular sync, both ways, so towns that connect out only get them too; they're sent again until the other town has them. The console of a running fq says when one arrives ("Push R and Enter to read it").
+
 ### Raids between towns
 
 Players can do everything to a parlor in a linked town that they can do in their own:
@@ -482,6 +492,16 @@ A new game day starts at local midnight, on the first action after midnight (the
 
 `data\world.json` is the whole game. The game backs up the `data` folder by itself every week (see below); you can also just copy the folder. Changes are protected by a lock file (`world.lock`), so any number of door nodes, the web server and the editor can run at once.
 
+## Running on a small server
+
+Funeral Quest is light: it typically needs 30–60 MB of memory and very little CPU, so a $5 VPS or a Raspberry Pi runs it fine. The game only rewrites its data file when something actually changed, which spares SD cards and slow disks. If your server is very small or has many linked towns, these settings (Settings → **Performance**) help further:
+
+* **Sync with linked towns every (seconds):** 30 normally. 60–300 means fewer requests with many linked towns. Your own chat and letters still go out right away; other towns' news and players arrive a little later.
+* **No live chat connections:** normally one connection per linked town stays open so their chat appears in the cafe at once. Turned on, chat from other towns arrives with each sync instead, and those connections (and their memory) go away.
+* **Memory limit (MB):** for example 64 or 128 on a tiny VPS. fq tidies up its memory sooner to stay near it (a little more CPU, less RAM). Takes effect when fq starts.
+
+Other settings that help: **AI players** (Settings → AI players: fewer or 0), **Don't pass on messages for other towns** (Network) if your town is a hub for many outbound-only towns, and keeping fewer weekly backups (Security).
+
 ## Backups and upgrades
 
 Every week (setting "Backup every", Security tab, 7 days by default) the game zips the `data` folder (players, settings, news, network keys, ban lists) into `data/backups/fq-backup-<date>.zip` and keeps the newest 8 ("Backups to keep"). Before a new version changes your data for the first time, it saves `fq-before-upgrade-<version>-<date>.zip`; those, and backups made by hand, are never deleted.
@@ -508,6 +528,7 @@ From 1.9.0 on, the game can update itself from the project's [Releases page on G
   * In the window of a running `fq net` (the usual shim for door-only BBSes), `fq telnet` or `fq web`, type **`update`** and press Enter: it installs the newest version and restarts itself on it. `check` only looks, `undo` goes back to the previous version, `help` lists the commands.
   * `fq update --check` says whether there's a newer version, `fq update` installs it after asking, and `fq update undo` goes back.
 * Settings, **Updates** group: **Don't check for updates**; **Get updates from** (another GitHub project, `owner/name`); **My service manager restarts it**: if fq runs under NSSM, as a Windows service or under systemd, turn this on and fq exits with code 3 after an update instead of restarting itself, so the service manager starts the new version. (On Linux, restarting itself keeps the same process, so systemd is fine either way.)
+* **Automatic updates (off unless you turn them on):** Settings → Updates → **Install updates automatically**. fq then looks for a new version every 6 hours, downloads it right away (even while people are playing), and installs it once nobody has been playing for a minute, then restarts on it. Only one running copy of fq does the installing; the others restart onto the new version once nobody is online. The data folder is backed up first and the Updates tab's **Go back** works as usual.
 * **Permission errors when updating** (usually on Linux, when the game was installed as root but runs as the BBS user): see **`UPDATE-PERMISSIONS.md`** for the one-line fix.
 * Ready-made updates are for the Windows and Linux programs. On macOS or BSD, build the new version from the source package.
 
@@ -542,7 +563,7 @@ Everything from the original server and its scripts:
 New in this port (the original left these unfinished):
 
 * **The church** does something now. Karma goes down for bad deeds (stealing tags, hiring the Twins, digging up graves, in town or in a linked town) and back up by donating tags, or by a once-a-day confession for players below 50 karma. Players with good karma can ask for a daily blessing that adds luck.
-* **The graveyard** (the cemetery on the town map; the original's graveyard button was "removed until I have a use for it"). Quests that cost a turn each, up to a daily limit: dig up a grave for treasure (or a curse, the groundskeeper, or a bony hand), answer the ghost's riddle in the mausoleum, hunt the ghoul, help the gravedigger for tags. Free: tend the graves once a day for karma, read headstones (one of them is a treasure hint), and see which parlors have filled the most plots.
+* **The graveyard** (the cemetery on the town map; the original's graveyard button was "removed until I have a use for it"). Quests up to a daily limit (they don't cost turns): dig up a grave for treasure (or a curse, the groundskeeper, or a bony hand), answer the ghost's riddle in the mausoleum, hunt the ghoul, help the gravedigger for tags. Free: tend the graves once a day for karma, read headstones (one of them is a treasure hint), and see which parlors have filled the most plots.
 * All of it is set under **Church & graveyard** in the settings, and linked towns compare these settings like the other game rules.
 * **The hospital:** hit points carry from fight to fight (at 0 you can't raid), and the hospital patches you up for gold tags, sells morgue tips for extra customers, lets you volunteer for karma, and has visiting hours for rivals who lost a fight (flowers, or unplugging something). Settings are under **Hospital**.
 * **Cash.** After operating costs and insurance, players keep a net profit of 6 to 15 percent of each funeral's bill (like real funeral homes; a sale close to the customer's limit adds 2 percent), and the bank sells tags for cash at prices the sysop sets.
